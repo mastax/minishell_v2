@@ -1,4 +1,4 @@
-#include "../../mini_shell.h"
+#include "../mini_shell.h"
 
 void	ft_putnbr_fd(int n, int fd)
 {

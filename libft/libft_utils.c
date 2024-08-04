@@ -1,4 +1,4 @@
-#include "../../mini_shell.h"
+#include "../mini_shell.h"
 
 void	ft_putendl_fd(char *s, int fd)
 {

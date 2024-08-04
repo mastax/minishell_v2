@@ -42,6 +42,7 @@ int handle_pipeline(char **commands, t_env *env);
 
 int     check_format(char *arg);
 int     print_error(int error_code, char *content);
+void    print_sorted_env(t_env *env);
 
                     /*exit BUiLTIN*/
 

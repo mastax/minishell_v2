@@ -1,4 +1,4 @@
-#include "../../mini_shell.h"
+#include "../mini_shell.h"
 
 static int	numwords(char const *s, char c)
 {

@@ -96,23 +96,23 @@ char	*ft_add_space(char *line)
 	return (line);
 }
 
-static char	*print_type(t_type type)
-{
-	if (WORD == type)
-		return ("WORD");
-	else if (PIPE == type)
-		return ("PIPE");
-	else if (RED_IN == type)
-		return ("RED_IN");
-	else if (RED_OUT == type)
-		return ("RED_OUT");
-	else if (HER_DOC == type)
-		return ("HER_DOC");
-	else if (APPEND == type)
-		return ("APPEND");
-	else
-		return (NULL);
-}
+// static char	*print_type(t_type type)
+// {
+// 	if (WORD == type)
+// 		return ("WORD");
+// 	else if (PIPE == type)
+// 		return ("PIPE");
+// 	else if (RED_IN == type)
+// 		return ("RED_IN");
+// 	else if (RED_OUT == type)
+// 		return ("RED_OUT");
+// 	else if (HER_DOC == type)
+// 		return ("HER_DOC");
+// 	else if (APPEND == type)
+// 		return ("APPEND");
+// 	else
+// 		return (NULL);
+// }
 
 int	parsing(char *line, t_token	**token, t_env *env)
 {
@@ -131,7 +131,7 @@ int	parsing(char *line, t_token	**token, t_env *env)
 		return (-1);
 	while (tmp)
 	{
-		printf("1!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
+		//printf("1!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
 		tmp->content = ft_remove_quotes(tmp->content);
 		tmp = tmp->next;
 	}

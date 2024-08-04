@@ -107,8 +107,14 @@ int ft_exports(t_env *env, char **args, int *exit_status)
     int i;
     int command_return;
 
-    i = 1;
     *exit_status = 0;
+    if (!args[1])
+    {
+        print_sorted_env(env);
+        return (1);
+    }
+
+    i = 1;
     while (args[i]) {
         command_return = ft_export(env, args[i]);
         if (command_return == 0)
@@ -119,4 +125,22 @@ int ft_exports(t_env *env, char **args, int *exit_status)
     }
     return (1);
 }
+
+// int ft_exports(t_env *env, char **args, int *exit_status)
+// {
+//     int i;
+//     int command_return;
+
+//     i = 1;
+//     *exit_status = 0;
+//     while (args[i]) {
+//         command_return = ft_export(env, args[i]);
+//         if (command_return == 0)
+//             return (0);
+//         else if (command_return == 2)
+//             *exit_status = 1;
+//         i++;
+//     }
+//     return (1);
+// }
 

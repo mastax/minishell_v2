@@ -11,6 +11,42 @@ void redirect_io(int input_fd, int output_fd)
     dup2(output_fd, STDOUT_FILENO);
 }
 
+char **split_line(char *line)
+{
+    int bufsize = MAX_ARGS;
+    int position = 0;
+    char **tokens = malloc(bufsize * sizeof(char*));
+    char *token;
+
+    if (!tokens)
+    {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
+    token = ft_strtok(line, DELIMITERS);
+    while (token != NULL)
+    {
+        tokens[position] = ft_strdup(token);
+        position++;
+
+        if (position >= bufsize)
+        {
+            bufsize += MAX_ARGS;
+            tokens = realloc(tokens, bufsize * sizeof(char*));
+            if (!tokens)
+            {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        token = ft_strtok(NULL, DELIMITERS);
+    }
+    tokens[position] = NULL;
+    return tokens;
+}
+
 int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
 {
     char **argv;

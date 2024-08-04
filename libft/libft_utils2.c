@@ -1,4 +1,4 @@
-#include "../../mini_shell.h"
+#include "../mini_shell.h"
 
 static int	overflow_ft(int sign)
 {

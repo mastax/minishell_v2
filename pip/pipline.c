@@ -47,49 +47,112 @@ char **split_line(char *line)
     return tokens;
 }
 
-int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
+static void setup_builtin_io(int input_fd, int output_fd, int *temp_stdin, int *temp_stdout)
 {
-    char **argv;
-    int status;
-    int pid;
-    int temp_stdin;
-    int temp_stdout;
+    *temp_stdin = dup(STDIN_FILENO);
+    *temp_stdout = dup(STDOUT_FILENO);
+    redirect_io(input_fd, output_fd);
+}
+
+static void restore_builtin_io(int temp_stdin, int temp_stdout)
+{
+    dup2(temp_stdin, STDIN_FILENO);
+    dup2(temp_stdout, STDOUT_FILENO);
+    close(temp_stdin);
+    close(temp_stdout);
+}
+
+static int execute_builtin_command(char **argv, t_env *env, int input_fd, int output_fd)
+{
+    int status = 0;
+    int temp_stdin, temp_stdout;
     t_arg temp_cmd;
 
-    argv = split_line(command);
-    status = 0;
-    pid = 0;
+    setup_builtin_io(input_fd, output_fd, &temp_stdin, &temp_stdout);
+    temp_cmd.arg = argv;
+    status = execute_builtin(&temp_cmd, env, &status);
+    restore_builtin_io(temp_stdin, temp_stdout);
+
+    return status;
+}
+
+static int execute_external_command_fork(char **argv, t_env *env, int input_fd, int output_fd)
+{
+    int pid = fork();
+    if (pid == 0)
+    {
+        redirect_io(input_fd, output_fd);
+        if (input_fd != STDIN_FILENO)
+            close(input_fd);
+        if (output_fd != STDOUT_FILENO)
+            close(output_fd);
+        int status = execute_external_command(argv, env->env_vars);
+        exit(status);
+    }
+    return pid;
+}
+
+int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
+{
+    char **argv = split_line(command);
+    int pid = 0;
+
     if (is_builtin(argv[0]))
     {
-        temp_stdin = dup(STDIN_FILENO);
-        temp_stdout = dup(STDOUT_FILENO);
-
-        redirect_io(input_fd, output_fd);
-        temp_cmd.arg = argv;
-        status = execute_builtin(&temp_cmd, env, &status);
-
-        dup2(temp_stdin, STDIN_FILENO);
-        dup2(temp_stdout, STDOUT_FILENO);
-        close(temp_stdin);
-        close(temp_stdout);
+        execute_builtin_command(argv, env, input_fd, output_fd);
     }
     else
     {
-        pid = fork();
-        if (pid == 0)
-        {
-            redirect_io(input_fd, output_fd);
-            if (input_fd != STDIN_FILENO)
-                close(input_fd);
-            if (output_fd != STDOUT_FILENO)
-                close(output_fd);
-            status = execute_external_command(argv, env->env_vars);
-            exit(status);
-        }
+        pid = execute_external_command_fork(argv, env, input_fd, output_fd);
     }
+
     free_argv(argv);
     return pid;
 }
+
+// int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
+// {
+//     char **argv;
+//     int status;
+//     int pid;
+//     int temp_stdin;
+//     int temp_stdout;
+//     t_arg temp_cmd;
+
+//     argv = split_line(command);
+//     status = 0;
+//     pid = 0;
+//     if (is_builtin(argv[0]))
+//     {
+//         temp_stdin = dup(STDIN_FILENO);
+//         temp_stdout = dup(STDOUT_FILENO);
+
+//         redirect_io(input_fd, output_fd);
+//         temp_cmd.arg = argv;
+//         status = execute_builtin(&temp_cmd, env, &status);
+
+//         dup2(temp_stdin, STDIN_FILENO);
+//         dup2(temp_stdout, STDOUT_FILENO);
+//         close(temp_stdin);
+//         close(temp_stdout);
+//     }
+//     else
+//     {
+//         pid = fork();
+//         if (pid == 0)
+//         {
+//             redirect_io(input_fd, output_fd);
+//             if (input_fd != STDIN_FILENO)
+//                 close(input_fd);
+//             if (output_fd != STDOUT_FILENO)
+//                 close(output_fd);
+//             status = execute_external_command(argv, env->env_vars);
+//             exit(status);
+//         }
+//     }
+//     free_argv(argv);
+//     return pid;
+// }
 
 // int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
 // {

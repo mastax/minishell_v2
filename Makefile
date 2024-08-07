@@ -31,6 +31,7 @@ SRC = builtin/cd.c \
       parsing/utils1.c \
       parsing/utils2.c \
       parsing/arg_utils.c \
+      heredoc/heredoc.c \
 	  mini_shell.c
 OBJ = $(SRC:.c=.o)
 RM = rm -f

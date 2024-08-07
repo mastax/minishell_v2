@@ -5,7 +5,6 @@ typedef struct x_arg
 {
     char  **arg;
     char  **red;
-    int     fd;// for heredoc
     struct x_arg *next;
 } t_arg;
 
@@ -44,6 +43,16 @@ typedef struct s_redir
     int fd;
     int original_fd;
     int is_output;
+    int type;
 } t_redir;
+
+typedef struct s_pipeline_state //for pip
+{
+    int prev_input;
+    int pipe_fds[2];
+    int *pids;
+    int num_commands;
+    t_env *env;
+} t_pipeline_state;
 
 #endif

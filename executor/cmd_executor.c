@@ -182,7 +182,6 @@ int main_shell_loop(t_env *env)
     return exit_status;
 }
 
-
 int execute_command(t_arg *cmd, t_env *env, int *exit_status)
 {
     t_io io;
@@ -195,16 +194,16 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
 
     while (cmd)
     {
-        if (is_builtin(cmd->arg[0]))
+        int heredoc_count = count_heredocs(cmd->red);
+        int *heredoc_fds = NULL;
+        if (heredoc_count > 0)
         {
-            status = execute_builtin(cmd, env, exit_status);
-            if (ft_strcmp(cmd->arg[0], "exit") == 0)
-                exit(status); // Exit the entire shell process
-            cmd = cmd->next;
-            continue;
+            heredoc_fds = handle_heredocs(cmd->red, heredoc_count, env);
+            if (!heredoc_fds)
+                return 1;
         }
-        
-        if (cmd->next) // If there's a next command, we need to pipe
+
+        if (cmd->next)
         {
             if (pipe(pipe_fd) == -1)
             {
@@ -217,6 +216,12 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
         if (pid == -1)
         {
             perror("fork");
+            if (heredoc_fds)
+            {
+                for (int i = 0; i < heredoc_count; i++)
+                    close(heredoc_fds[i]);
+                free(heredoc_fds);
+            }
             return 1;
         }
         else if (pid == 0) // Child process
@@ -232,13 +237,20 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
                 close(pipe_fd[0]);
                 close(pipe_fd[1]);
             }
+
+            if (heredoc_fds)
+            {
+                dup2(heredoc_fds[heredoc_count - 1], STDIN_FILENO);
+                for (int i = 0; i < heredoc_count; i++)
+                    close(heredoc_fds[i]);
+            }
+
             if (apply_redirections(cmd->red) == -1)
                 exit(1);
 
             if (is_builtin(cmd->arg[0]))
-                return (execute_builtin(cmd, env, exit_status));
+                exit(execute_builtin(cmd, env, exit_status));
             else
-                // return (execute_external_command(cmd->arg, env->env_vars));
                 execvp(cmd->arg[0], cmd->arg);
             
             perror("execvp");
@@ -259,18 +271,320 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
                 prev_pipe_read = STDIN_FILENO;
             }
 
+            if (heredoc_fds)
+            {
+                for (int i = 0; i < heredoc_count; i++)
+                    close(heredoc_fds[i]);
+                free(heredoc_fds);
+            }
+
+            if (!cmd->next)
+            {
+                waitpid(pid, &status, 0);
+                *exit_status = WEXITSTATUS(status);
+            }
+
             cmd = cmd->next;
         }
     }
 
-    // Wait for all child processes
-    while (wait(&status) > 0)
+    // Wait for any remaining child processes
+    while (wait(NULL) > 0)
         ;
 
     restore_io(&io);
-    *exit_status = WEXITSTATUS(status);
     return *exit_status;
 }
+
+// int execute_command(t_arg *cmd, t_env *env, int *exit_status)//here doc no pip yes
+// {
+//     t_io io;
+//     int status = 0;
+//     int pipe_fd[2];
+//     pid_t pid;
+//     int prev_pipe_read = STDIN_FILENO;
+
+//     save_original_io(&io);
+
+//     while (cmd)
+//     {
+//         if (cmd->next)
+//         {
+//             if (pipe(pipe_fd) == -1)
+//             {
+//                 perror("pipe");
+//                 return 1;
+//             }
+//         }
+
+//         pid = fork();
+//         if (pid == -1)
+//         {
+//             perror("fork");
+//             return 1;
+//         }
+//         else if (pid == 0) // Child process
+//         {
+//             if (prev_pipe_read != STDIN_FILENO)
+//             {
+//                 dup2(prev_pipe_read, STDIN_FILENO);
+//                 close(prev_pipe_read);
+//             }
+//             if (cmd->next)
+//             {
+//                 dup2(pipe_fd[1], STDOUT_FILENO);
+//                 close(pipe_fd[0]);
+//                 close(pipe_fd[1]);
+//             }
+
+//             if (apply_redirections(cmd->red) == -1)
+//                 exit(1);
+
+//             if (is_builtin(cmd->arg[0]))
+//                 exit(execute_builtin(cmd, env, exit_status));
+//             else
+//                 execvp(cmd->arg[0], cmd->arg);
+            
+//             perror("execvp");
+//             exit(1);
+//         }
+//         else // Parent process
+//         {
+//             if (prev_pipe_read != STDIN_FILENO)
+//                 close(prev_pipe_read);
+            
+//             if (cmd->next)
+//             {
+//                 close(pipe_fd[1]);
+//                 prev_pipe_read = pipe_fd[0];
+//             }
+//             else
+//             {
+//                 prev_pipe_read = STDIN_FILENO;
+//             }
+
+//             if (!cmd->next)
+//             {
+//                 waitpid(pid, &status, 0);
+//                 *exit_status = WEXITSTATUS(status);
+//             }
+
+//             cmd = cmd->next;
+//         }
+//     }
+
+//     // Wait for any remaining child processes
+//     while (wait(NULL) > 0)
+//         ;
+
+//     restore_io(&io);
+//     return *exit_status;
+// }
+
+// int execute_command(t_arg *cmd, t_env *env, int *exit_status)
+// {
+//     t_io io;
+//     int status = 0;
+//     int pipe_fd[2];
+//     pid_t pid;
+//     int prev_pipe_read = STDIN_FILENO;
+
+//     save_original_io(&io);
+
+//     while (cmd)
+//     {
+//         if (is_builtin(cmd->arg[0]))
+//         {
+//             status = execute_builtin(cmd, env, exit_status);
+//             if (ft_strcmp(cmd->arg[0], "exit") == 0)
+//                 exit(status);
+//             cmd = cmd->next;
+//             continue;
+//         }
+        
+//         if (cmd->next)
+//         {
+//             if (pipe(pipe_fd) == -1)
+//             {
+//                 perror("pipe");
+//                 return 1;
+//             }
+//         }
+
+//         int heredoc_count = count_heredocs(cmd->red);
+//         int *heredoc_fds = NULL;
+//         if (heredoc_count > 0)
+//         {
+//             heredoc_fds = handle_heredocs(cmd->red, heredoc_count, env);;
+//             if (!heredoc_fds)
+//                 return 1;
+//         }
+//         pid = fork();
+//         if (pid == -1)
+//         {
+//             perror("fork");
+//             if (heredoc_fds)
+//             {
+//                 for (int i = 0; i < heredoc_count; i++)
+//                     close(heredoc_fds[i]);
+//                 free(heredoc_fds);
+//             }
+//             return 1;
+//         }
+//         else if (pid == 0) // Child process
+//         {
+//             if (prev_pipe_read != STDIN_FILENO)
+//             {
+//                 dup2(prev_pipe_read, STDIN_FILENO);
+//                 close(prev_pipe_read);
+//             }
+//             if (cmd->next)
+//             {
+//                 dup2(pipe_fd[1], STDOUT_FILENO);
+//                 close(pipe_fd[0]);
+//                 close(pipe_fd[1]);
+//             }
+//             if (heredoc_fds)
+//             {
+//                 dup2(heredoc_fds[heredoc_count - 1], STDIN_FILENO);
+//                 for (int i = 0; i < heredoc_count; i++)
+//                     close(heredoc_fds[i]);
+//             }
+//             if (apply_redirections(cmd->red) == -1)
+//                 exit(1);
+
+//             if (is_builtin(cmd->arg[0]))
+//                 exit(execute_builtin(cmd, env, exit_status));
+//             else
+//                 execvp(cmd->arg[0], cmd->arg);
+            
+//             perror("execvp");
+//             exit(1);
+//         }
+//         else // Parent process
+//         {
+//             if (prev_pipe_read != STDIN_FILENO)
+//                 close(prev_pipe_read);
+            
+//             if (cmd->next)
+//             {
+//                 close(pipe_fd[1]);
+//                 prev_pipe_read = pipe_fd[0];
+//             }
+//             else
+//             {
+//                 prev_pipe_read = STDIN_FILENO;
+//             }
+
+//             if (heredoc_fds)
+//             {
+//                 for (int i = 0; i < heredoc_count; i++)
+//                     close(heredoc_fds[i]);
+//                 free(heredoc_fds);
+//             }
+
+//             cmd = cmd->next;
+//         }
+//     }
+
+//     // Wait for all child processes
+//     while (wait(&status) > 0)
+//         ;
+
+//     restore_io(&io);
+//     *exit_status = WEXITSTATUS(status);
+//     return *exit_status;
+// }
+
+
+// int execute_command(t_arg *cmd, t_env *env, int *exit_status)///lastone
+// {
+//     t_io io;
+//     int status = 0;
+//     int pipe_fd[2];
+//     pid_t pid;
+//     int prev_pipe_read = STDIN_FILENO;
+
+//     save_original_io(&io);
+
+//     while (cmd)
+//     {
+//         if (is_builtin(cmd->arg[0]))
+//         {
+//             status = execute_builtin(cmd, env, exit_status);
+//             if (ft_strcmp(cmd->arg[0], "exit") == 0)
+//                 exit(status); // Exit the entire shell process
+//             cmd = cmd->next;
+//             continue;
+//         }
+        
+//         if (cmd->next) // If there's a next command, we need to pipe
+//         {
+//             if (pipe(pipe_fd) == -1)
+//             {
+//                 perror("pipe");
+//                 return 1;
+//             }
+//         }
+
+//         pid = fork();
+//         if (pid == -1)
+//         {
+//             perror("fork");
+//             return 1;
+//         }
+//         else if (pid == 0) // Child process
+//         {
+//             if (prev_pipe_read != STDIN_FILENO)
+//             {
+//                 dup2(prev_pipe_read, STDIN_FILENO);
+//                 close(prev_pipe_read);
+//             }
+//             if (cmd->next)
+//             {
+//                 dup2(pipe_fd[1], STDOUT_FILENO);
+//                 close(pipe_fd[0]);
+//                 close(pipe_fd[1]);
+//             }
+//             if (apply_redirections(cmd->red) == -1)
+//                 exit(1);
+
+//             if (is_builtin(cmd->arg[0]))
+//                 return (execute_builtin(cmd, env, exit_status));
+//             else
+//                 // return (execute_external_command(cmd->arg, env->env_vars));
+//                 execvp(cmd->arg[0], cmd->arg);
+            
+//             perror("execvp");
+//             exit(1);
+//         }
+//         else // Parent process
+//         {
+//             if (prev_pipe_read != STDIN_FILENO)
+//                 close(prev_pipe_read);
+            
+//             if (cmd->next)
+//             {
+//                 close(pipe_fd[1]);
+//                 prev_pipe_read = pipe_fd[0];
+//             }
+//             else
+//             {
+//                 prev_pipe_read = STDIN_FILENO;
+//             }
+
+//             cmd = cmd->next;
+//         }
+//     }
+
+//     // Wait for all child processes
+//     while (wait(&status) > 0)
+//         ;
+
+//     restore_io(&io);
+//     *exit_status = WEXITSTATUS(status);
+//     return *exit_status;
+// }
 
 int main(int argc, char **argv, char **envp)
 {

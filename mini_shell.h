@@ -5,6 +5,7 @@
 #define DELIMITERS " \t\r\n\a"
 #define STDIN_FILENO 0
 #define STDOUT_FILENO 1
+#define BUFFER_SIZE 1024
 
 # include <sys/wait.h>
 # include <readline/readline.h>
@@ -103,5 +104,12 @@ int ft_convert_token_to_arg(t_token *token, t_arg *args, int stat);
 /*Redirections functions*/
 
 int apply_redirections(char **red);
+
+/*HERDOC*/
+
+int count_heredocs(char **red);
+int *handle_heredocs(char **red, int count, t_env *env);
+
+int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i);//expending
 
 #endif

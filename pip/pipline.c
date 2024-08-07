@@ -173,59 +173,131 @@ int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
 //     return pid;
 // }
 
-int handle_pipeline(char **commands, t_env *env)
-{
-    int pipe_fds[2];
-    int prev_input;
-    int temp_stdout;
-    int pid;
-    int status;
-    int num_commands;
-    int *pids;
+//-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    prev_input = STDIN_FILENO;
-    temp_stdout = dup(STDOUT_FILENO);
-    status = 0;
-    num_commands = 0;
-    pids = malloc(sizeof(int) * 1024);// Assume max 1024 commands in pipeline
-    if (!pids)
-    {
-        perror("malloc");
-        return 1;
-    }
-    while (*commands)
-    {
-        if (*(commands + 1))
-            pipe(pipe_fds);
-        else
-            pipe_fds[1] = temp_stdout;
-        pid = run_pipeline_command(*commands, env, prev_input, pipe_fds[1]);
-        if (pid == -1)
-        {
-            free(pids);
-            return 1;  // Error in run_pipeline_command
-        }
-        pids[num_commands++] = pid;
-        if (prev_input != STDIN_FILENO)
-            close(prev_input);
-        if (pipe_fds[1] != temp_stdout)
-            close(pipe_fds[1]);
-        prev_input = pipe_fds[0];
-        commands++;
-    }
-    // Wait for all processes to finish
-    for (int i = 0; i < num_commands; i++)
+
+static void setup_pipe(char **commands, int *pipe_fds, int temp_stdout)
+{
+    if (*(commands + 1))
+        pipe(pipe_fds);
+    else
+        pipe_fds[1] = temp_stdout;
+}
+
+static int wait_and_cleanup(int *pids, int num_commands, int prev_input,
+                            int temp_stdout)
+{
+    int status;
+    int i;
+
+    i = 0;
+    while (i < num_commands)
     {
         waitpid(pids[i], &status, 0);
+        i++;
     }
-    // Clean up
     if (prev_input != STDIN_FILENO)
         close(prev_input);
     close(temp_stdout);
     free(pids);
-
-    return WEXITSTATUS(status);
+    return (WEXITSTATUS(status));
 }
+
+static void handle_command(char *command, t_pipeline_state *state)
+{
+    int pid;
+
+    pid = run_pipeline_command(command, state->env, state->prev_input, state->pipe_fds[1]);
+    if (pid == -1)
+    {
+        free(state->pids);
+        exit(1);
+    }
+    state->pids[state->num_commands++] = pid;
+    if (state->prev_input != STDIN_FILENO)
+        close(state->prev_input);
+    if (state->pipe_fds[1] != dup(STDOUT_FILENO))
+        close(state->pipe_fds[1]);
+    state->prev_input = state->pipe_fds[0];
+}
+
+int handle_pipeline(char **commands, t_env *env)
+{
+    t_pipeline_state state;
+    int temp_stdout;
+
+    state.prev_input = STDIN_FILENO;
+    temp_stdout = dup(STDOUT_FILENO);
+    state.num_commands = 0;
+    state.env = env;
+    state.pids = malloc(sizeof(int) * 1024);
+    if (!state.pids)
+    {
+        perror("malloc");
+        return (1);
+    }
+    while (*commands)
+    {
+        setup_pipe(commands, state.pipe_fds, temp_stdout);
+        handle_command(*commands, &state);
+        commands++;
+    }
+    return (wait_and_cleanup(state.pids, state.num_commands, state.prev_input, temp_stdout));
+}
+
+// int handle_pipeline(char **commands, t_env *env)
+// {
+//     int pipe_fds[2];
+//     int prev_input;
+//     int temp_stdout;
+//     int pid;
+//     int status;
+//     int num_commands;
+//     int *pids;
+
+//     prev_input = STDIN_FILENO;
+//     temp_stdout = dup(STDOUT_FILENO);
+//     status = 0;
+//     num_commands = 0;
+//     pids = malloc(sizeof(int) * 1024);// Assume max 1024 commands in pipeline
+//     if (!pids)
+//     {
+//         perror("malloc");
+//         return 1;
+//     }
+//     while (*commands)
+//     {
+//         if (*(commands + 1))
+//             pipe(pipe_fds);
+//         else
+//             pipe_fds[1] = temp_stdout;
+//         pid = run_pipeline_command(*commands, env, prev_input, pipe_fds[1]);
+//         if (pid == -1)
+//         {
+//             free(pids);
+//             return 1;  // Error in run_pipeline_command
+//         }
+//         pids[num_commands++] = pid;
+//         if (prev_input != STDIN_FILENO)
+//             close(prev_input);
+//         if (pipe_fds[1] != temp_stdout)
+//             close(pipe_fds[1]);
+//         prev_input = pipe_fds[0];
+//         commands++;
+//     }
+//     // Wait for all processes to finish
+//     for (int i = 0; i < num_commands; i++)
+//     {
+//         waitpid(pids[i], &status, 0);
+//     }
+//     // Clean up
+//     if (prev_input != STDIN_FILENO)
+//         close(prev_input);
+//     close(temp_stdout);
+//     free(pids);
+
+//     return WEXITSTATUS(status);
+// }
 
 // int handle_pipeline(char **commands, t_env *env)
 // {

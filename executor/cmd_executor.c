@@ -172,12 +172,22 @@ int main_shell_loop(t_env *env)
             if (cmd)
             {
                 if (ft_convert_token_to_arg(tokens, cmd, 0) == 0)
-                    exit_status = execute_command(cmd, env, &exit_status);
+                {
+                    int result = execute_command(cmd, env, &exit_status);
+                    if (result == -1)  // Check for exit command
+                    {
+                        free_command(cmd);
+                        free_tokens(tokens);
+                        //free(input);
+                        return exit_status;
+                    }
+                }
                 free_command(cmd);
             }
             free_tokens(tokens);
             tokens = NULL;
         }
+        //free(input);
     }
     return exit_status;
 }
@@ -194,6 +204,13 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
 
     while (cmd)
     {
+        if (ft_strcmp(cmd->arg[0], "exit") == 0)
+        {
+            restore_io(&io);
+            if (cmd->arg[1])
+                *exit_status = ft_atoi(cmd->arg[1]);
+            return -1;  // Special return value to indicate exit
+        }
         int heredoc_count = count_heredocs(cmd->red);
         int *heredoc_fds = NULL;
         if (heredoc_count > 0)

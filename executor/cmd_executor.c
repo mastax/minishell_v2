@@ -209,7 +209,15 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
             restore_io(&io);
             if (cmd->arg[1])
                 *exit_status = ft_atoi(cmd->arg[1]);
-            return -1;  // Special return value to indicate exit
+            return (-1);  // Special return value to indicate exit
+        }
+         // Check for empty command
+        if (!cmd->arg[0] || cmd->arg[0][0] == '\0')
+        {
+            printf("minishell: : command not found\n");
+            *exit_status = 127;
+            cmd = cmd->next;
+            continue;
         }
         int heredoc_count = count_heredocs(cmd->red);
         int *heredoc_fds = NULL;
@@ -266,12 +274,13 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
                 exit(1);
 
             if (is_builtin(cmd->arg[0]))
-                exit(execute_builtin(cmd, env, exit_status));
+                return (execute_builtin(cmd, env, exit_status));
             else
-                execvp(cmd->arg[0], cmd->arg);
+                exit(execute_external_command(cmd->arg, env->env_vars));
+                // execvp(cmd->arg[0], cmd->arg);
             
-            perror("execvp");
-            exit(1);
+            // perror("execvp");
+            // exit(1);
         }
         else // Parent process
         {

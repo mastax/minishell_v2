@@ -80,15 +80,47 @@ static void sort_env_vars(char **sorted_env, int count)
 static void print_env_vars(char **sorted_env, int count)
 {
     int i;
+    char *name, *value;
 
     i = 0;
     while (i < count)
     {
         ft_putstr_fd("declare -x ", 1);
-        ft_putendl_fd(sorted_env[i], 1);
+
+        name = sorted_env[i];
+        value = ft_strchr(sorted_env[i], '=');
+
+        if (value)
+        {
+            *value = '\0';
+            ft_putstr_fd(name, 1);
+            ft_putstr_fd("=\"", 1);
+            ft_putstr_fd(value + 1, 1);
+            ft_putendl_fd("\"", 1);
+            *value = '=';
+        }
+        else
+        {
+            ft_putendl_fd(sorted_env[i], 1);
+        }
+
         i++;
     }
 }
+
+
+// static void print_env_vars(char **sorted_env, int count)
+// {
+//     int i;
+
+//     i = 0;
+//     while (i < count)
+//     {
+//         ft_putstr_fd("declare -x ", 1);
+//         ft_putendl_fd(sorted_env[i], 1);
+//         i++;
+//     }
+// }
 
 static void free_sorted_env(char **sorted_env, int count)
 {

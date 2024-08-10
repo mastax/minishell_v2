@@ -20,9 +20,11 @@ SRC = builtin/cd.c \
       builtin/builtin_helpers/export_helper.c \
       builtin/builtin_helpers/set_env_value.c \
       pip/pipline.c \
+      pip/pipline_run.c \
       redirections/redirections.c \
       parsing/check_error.c \
       parsing/expanding.c \
+      parsing/expanding_utils.c \
       parsing/list_utils.c \
       parsing/parsing.c \
       parsing/remove_quotes.c \
@@ -32,6 +34,7 @@ SRC = builtin/cd.c \
       parsing/utils2.c \
       parsing/arg_utils.c \
       heredoc/heredoc.c \
+      heredoc/heredoc_utils.c \
 	  mini_shell.c
 OBJ = $(SRC:.c=.o)
 RM = rm -f

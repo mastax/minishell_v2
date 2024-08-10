@@ -40,7 +40,7 @@ void	ft_lstadd_back(t_token **lst, t_token *new)
 		*lst = new;
 }
 
-t_token	*ft_list_new(char *token)
+t_token	*ft_list_new(char *token, int z)
 {
 	t_token	*data;
 
@@ -48,7 +48,16 @@ t_token	*ft_list_new(char *token)
 	if (!data)
 		return (write(2 , "Error\n can't malloc for new_data\n", 34), NULL);
 	data->content = token;
-	data->type = ft_get_type(token);
+	if (z == 1)
+	{
+		data->type = ft_get_type(token);
+		data->qout_rm = true;
+	}
+	else if (z == 2)
+	{
+		data->type = WORD;
+		data->qout_rm = false;
+	}
 	data->next = NULL;
 	return (data);
 }

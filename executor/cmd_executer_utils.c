@@ -96,3 +96,16 @@ int is_builtin(const char *cmd)
     }
     return 0;
 }
+
+int count_heredocs(char **red)
+{
+    int count = 0;
+    int i = 0;
+    while (red && red[i])
+    {
+        if (ft_strcmp(red[i], "<<") == 0)
+            count++;
+        i++;
+    }
+    return count;
+}

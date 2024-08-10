@@ -18,15 +18,6 @@ int	ft_strncmp(char *s1, const char *s2, size_t n)
 	return (0);
 }
 
-int	ft_name_len(char *var, int i)
-{
-	int len;
-
-	len = 0;
-	while (var[i + len] != '\0' && (is_valid_var(var[i + len]) == 1))
-		len++;
-	return (len);
-}
 
 char	*get_var_from_env(char *var, int var_len, t_env *env)
 {
@@ -76,7 +67,7 @@ int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i)
 	while (var[0][i] != 0)
 	{
 		if (var[0][i] == '\'')
-			i += ft_skipe_qoute(*var, i) + 1;
+			i = ft_skipe_qoute(*var, i);
 		else if (var[0][i] == '$' && (is_valid_var(var[0][i + 1]) == 1))
 		{
 			j = ft_name_len(*var, i + 1);
@@ -114,7 +105,14 @@ int	expanden(t_token **token, t_env *env)
 			return (-1);
 		}
 		prv_type = tmp->type;
-		tmp = tmp->next;
+		if (ft_have_sp_tb(tmp->content) == 1)
+		{
+			if (ft_handl_spichel_cond(token, tmp, tmp->next, tmp->content) == -1)
+				return (-1);
+			tmp = *token;
+		}
+		else 
+			tmp = tmp->next;
 	}
 	return (0);
 }

@@ -1,6 +1,8 @@
 #ifndef STRUCT_H
 #define STRUCT_H
 
+# include <stdbool.h>
+
 typedef struct x_arg
 {
     char  **arg;
@@ -22,6 +24,7 @@ typedef struct s_tokenz
 {
 	char			*content;
 	int				type;
+    bool            qout_rm;
 	struct s_tokenz	*next;
 }	t_token;
 

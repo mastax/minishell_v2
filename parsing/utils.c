@@ -36,31 +36,29 @@ int	ft_skipe_spaces(char *line, int i)
 	return (i);
 }
 
-int	ft_skipe_qoute(char	*s, int i)
+int ft_skipe_qoute(char *s, int i)
 {
-	if ((s[i] == '"' && s[i + 1] == '"') || (s[i] == '\''
-			&& s[i + 1] == '\''))
-		i += 1;
-	else if (s[i] == '"')
-	{
-		i++;
-		while (s[i] != '"' && s[i] != '\0')
+    if (s[i] == '\0')
+		return (i);
+    if ((s[i] == '"' && s[i + 1] == '"') || (s[i] == '\'' && s[i + 1] == '\''))
+        return (i + 1);
+    char quote = (s[i] == '"' || s[i] == '\'') ? s[i] : '\0';
+    if (quote)
+    {
+        i++;
+        while (s[i] != '\0' && s[i] != quote)
+            i++;
+        if (s[i] == quote)
 			i++;
-	}
-	else if (s[i] == '\'')
-	{
-		i++;
-		while (s[i] != '\'' && s[i] != '\0')
-			i++;
-	}
-	if (s[i + 1] != ' ' && s[i + 1] != '\t' && s[i + 1] != '\0'
-		&& s[i + 1] != '|' && s[i + 1] != '>' && s[i + 1] != '<')
-	{
-		if (s[i + 1] == '"' || s[i + 1] == '\'')
-			i = ft_skipe_qoute(s, i + 1);
-		while (s[i + 1] != ' ' && s[i + 1] != '\t' && s[i + 1] != '\0'
-			&& s[i + 1] != '|' && s[i + 1] != '>' && s[i + 1] != '<')
-			i++;
-	}
-	return (i);
+    }
+    while (s[i] != '\0')
+    {
+        if (s[i] == ' ' || s[i] == '\t' || s[i] == '|' || s[i] == '>' || s[i] == '<')
+            break;
+        if (s[i] == '"' || s[i] == '\'')
+            i = ft_skipe_qoute(s, i);
+        else
+            i++;
+    }
+    return (i);
 }

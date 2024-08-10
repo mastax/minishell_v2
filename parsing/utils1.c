@@ -51,7 +51,7 @@ char	*ft_compress_spaces(char *s)
 	while (s[i] != '\0')
 	{
 		if (s[i] == '"' || s[i] == '\'')
-			i = ft_skipe_qoute(s, i) + 1;
+			i = ft_skipe_qoute(s, i);
 		else if ((s[i] == ' ' && s[i + 1] == ' ') || (s[i] == '\t'
 				&& s[i + 1] == '\t'))
 			s = ft_remove_char(s, i);
@@ -70,19 +70,19 @@ int	get_token_len(char	*s, int i)
 			&& s[i + 1] == '\''))
 		return (2);
 	else if (s[i] == '"' || s[i] == '\'')
-		i = ft_skipe_qoute(s, i) + 1;
+		i = ft_skipe_qoute(s, i);
 	else
 	{
 		while (s[i] != '\0' && s[i] != ' ' && s[i] != '\t'
 		&& s[i] != '"' && s[i] != '\'')
 			i++;
 		if (s[i] == '"' || s[i] == '\'')
-			i = ft_skipe_qoute(s, i) + 1;
+			i = ft_skipe_qoute(s, i);
 	}
 	return (i - j);
 }
 
-int	get_token(t_token **token, char	*s)
+int	get_token(t_token **token, char	*s, int z)
 {
 	int		i;
 	int		j;
@@ -99,7 +99,7 @@ int	get_token(t_token **token, char	*s)
 		contant = ft_substr(s, i, j);
 		if (!contant)
 			return (-1);
-		new = ft_list_new(contant);
+		new = ft_list_new(contant, z);
 		if (!new)
 			return (-1);
 		// if (new->content[0] == '\"')

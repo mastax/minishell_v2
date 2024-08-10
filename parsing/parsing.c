@@ -75,7 +75,7 @@ char	*ft_add_space(char *line)
 	while (line[i])
 	{
 		if (line[i] == '"' || line[i] == '\'')
-			i = ft_skipe_qoute(line, i);
+			i = ft_skipe_qoute(line, i) - 1;
 		else if ((line[i] == '>' && line[i + 1] == '>') || (line[i] == '<'
 				&& line[i + 1] == '<'))
 		{
@@ -122,17 +122,20 @@ int	parsing(char *line, t_token	**token, t_env *env)
 	if (ft_check_qoutes(line) == -1)
 		return (-1);
 	line = ft_compress_spaces(line);
-	if (get_token(token, line) == -1)
+	if (get_token(token, line, 1) == -1)
 		return (-1);
 	if (*token == NULL)
 		return (-1);
-	tmp = *token;
 	if (expanden(token, env) == -1)
 		return (-1);
+	tmp = *token;
+	if ((*token)->content[ft_skipe_spaces((*token)->content, 0)] == '\0')
+		return (free_tokens(*token), free(line), -1);
 	while (tmp)
 	{
+		if (tmp->qout_rm == true)
+			tmp->content = ft_remove_quotes(tmp->content);
 		//printf("1!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
-		tmp->content = ft_remove_quotes(tmp->content);
 		tmp = tmp->next;
 	}
 	if (ft_check_error(*token) == 1)

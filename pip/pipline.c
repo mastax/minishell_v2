@@ -1,14 +1,34 @@
 #include "../mini_shell.h"
 
-char **split_pipeline(char *line)
-{
-    return (ft_split(line, '|'));
-}
+// char **split_pipeline(char *line)
+// {
+//     return (ft_split(line, '|'));
+// }
 
-void redirect_io(int input_fd, int output_fd)
+// void redirect_io(int input_fd, int output_fd)
+// {
+//     dup2(input_fd, STDIN_FILENO);
+//     dup2(output_fd, STDOUT_FILENO);
+// }
+
+static char **resize_tokens(char **tokens, int *bufsize, int position)
 {
-    dup2(input_fd, STDIN_FILENO);
-    dup2(output_fd, STDOUT_FILENO);
+    char **new_tokens;
+    int new_bufsize = *bufsize + MAX_ARGS;
+
+    new_tokens = malloc(new_bufsize * sizeof(char*));
+    if (!new_tokens)
+    {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < position; i++)
+    {
+        new_tokens[i] = tokens[i];
+    }
+    free(tokens);
+    *bufsize = new_bufsize;
+    return new_tokens;
 }
 
 char **split_line(char *line)
@@ -32,20 +52,48 @@ char **split_line(char *line)
 
         if (position >= bufsize)
         {
-            bufsize += MAX_ARGS;
-            tokens = realloc(tokens, bufsize * sizeof(char*));
-            if (!tokens)
-            {
-                perror("realloc");
-                exit(EXIT_FAILURE);
-            }
+            tokens = resize_tokens(tokens, &bufsize, position);
         }
-
         token = ft_strtok(NULL, DELIMITERS);
     }
     tokens[position] = NULL;
     return tokens;
 }
+
+// char **split_line(char *line)
+// {
+//     int bufsize = MAX_ARGS;
+//     int position = 0;
+//     char **tokens = malloc(bufsize * sizeof(char*));
+//     char *token;
+
+//     if (!tokens)
+//     {
+//         perror("malloc");
+//         exit(EXIT_FAILURE);
+//     }
+
+//     token = ft_strtok(line, DELIMITERS);
+//     while (token != NULL)
+//     {
+//         tokens[position] = ft_strdup(token);
+//         position++;
+
+//         if (position >= bufsize)
+//         {
+//             bufsize += MAX_ARGS;
+//             tokens = realloc(tokens, bufsize * sizeof(char*));
+//             if (!tokens)
+//             {
+//                 perror("realloc");
+//                 exit(EXIT_FAILURE);
+//             }
+//         }
+//         token = ft_strtok(NULL, DELIMITERS);
+//     }
+//     tokens[position] = NULL;
+//     return tokens;
+// }
 
 static void setup_builtin_io(int input_fd, int output_fd, int *temp_stdin, int *temp_stdout)
 {
@@ -62,7 +110,7 @@ static void restore_builtin_io(int temp_stdin, int temp_stdout)
     close(temp_stdout);
 }
 
-static int execute_builtin_command(char **argv, t_env *env, int input_fd, int output_fd)
+int execute_builtin_command(char **argv, t_env *env, int input_fd, int output_fd)
 {
     int status = 0;
     int temp_stdin, temp_stdout;
@@ -76,7 +124,7 @@ static int execute_builtin_command(char **argv, t_env *env, int input_fd, int ou
     return status;
 }
 
-static int execute_external_command_fork(char **argv, t_env *env, int input_fd, int output_fd)
+int execute_external_command_fork(char **argv, t_env *env, int input_fd, int output_fd)
 {
     int pid = fork();
     if (pid == 0)
@@ -92,23 +140,23 @@ static int execute_external_command_fork(char **argv, t_env *env, int input_fd, 
     return pid;
 }
 
-int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
-{
-    char **argv = split_line(command);
-    int pid = 0;
+// int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
+// {
+//     char **argv = split_line(command);
+//     int pid = 0;
 
-    if (is_builtin(argv[0]))
-    {
-        execute_builtin_command(argv, env, input_fd, output_fd);
-    }
-    else
-    {
-        pid = execute_external_command_fork(argv, env, input_fd, output_fd);
-    }
+//     if (is_builtin(argv[0]))
+//     {
+//         execute_builtin_command(argv, env, input_fd, output_fd);
+//     }
+//     else
+//     {
+//         pid = execute_external_command_fork(argv, env, input_fd, output_fd);
+//     }
 
-    free_argv(argv);
-    return pid;
-}
+//     free_argv(argv);
+//     return pid;
+// }
 
 // int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
 // {
@@ -176,16 +224,15 @@ int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd)
 //-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-static void setup_pipe(char **commands, int *pipe_fds, int temp_stdout)
-{
-    if (*(commands + 1))
-        pipe(pipe_fds);
-    else
-        pipe_fds[1] = temp_stdout;
-}
+// static void setup_pipe(char **commands, int *pipe_fds, int temp_stdout)
+// {
+//     if (*(commands + 1))
+//         pipe(pipe_fds);
+//     else
+//         pipe_fds[1] = temp_stdout;
+// }
 
-static int wait_and_cleanup(int *pids, int num_commands, int prev_input,
-                            int temp_stdout)
+int wait_and_cleanup(int *pids, int num_commands, int prev_input, int temp_stdout)
 {
     int status;
     int i;
@@ -203,7 +250,7 @@ static int wait_and_cleanup(int *pids, int num_commands, int prev_input,
     return (WEXITSTATUS(status));
 }
 
-static void handle_command(char *command, t_pipeline_state *state)
+void handle_command(char *command, t_pipeline_state *state)
 {
     int pid;
 
@@ -221,29 +268,29 @@ static void handle_command(char *command, t_pipeline_state *state)
     state->prev_input = state->pipe_fds[0];
 }
 
-int handle_pipeline(char **commands, t_env *env)
-{
-    t_pipeline_state state;
-    int temp_stdout;
+// int handle_pipeline(char **commands, t_env *env)
+// {
+//     t_pipeline_state state;
+//     int temp_stdout;
 
-    state.prev_input = STDIN_FILENO;
-    temp_stdout = dup(STDOUT_FILENO);
-    state.num_commands = 0;
-    state.env = env;
-    state.pids = malloc(sizeof(int) * 1024);
-    if (!state.pids)
-    {
-        perror("malloc");
-        return (1);
-    }
-    while (*commands)
-    {
-        setup_pipe(commands, state.pipe_fds, temp_stdout);
-        handle_command(*commands, &state);
-        commands++;
-    }
-    return (wait_and_cleanup(state.pids, state.num_commands, state.prev_input, temp_stdout));
-}
+//     state.prev_input = STDIN_FILENO;
+//     temp_stdout = dup(STDOUT_FILENO);
+//     state.num_commands = 0;
+//     state.env = env;
+//     state.pids = malloc(sizeof(int) * 1024);
+//     if (!state.pids)
+//     {
+//         perror("malloc");
+//         return (1);
+//     }
+//     while (*commands)
+//     {
+//         setup_pipe(commands, state.pipe_fds, temp_stdout);
+//         handle_command(*commands, &state);
+//         commands++;
+//     }
+//     return (wait_and_cleanup(state.pids, state.num_commands, state.prev_input, temp_stdout));
+// }
 
 // int handle_pipeline(char **commands, t_env *env)
 // {

@@ -35,7 +35,12 @@ int change_to_previous(t_env *env);
 char **split_pipeline(char *line);
 void redirect_io(int input_fd, int output_fd);
 int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd);
+int execute_builtin_command(char **argv, t_env *env, int input_fd, int output_fd);
+int execute_external_command_fork(char **argv, t_env *env, int input_fd, int output_fd);
+void handle_command(char *command, t_pipeline_state *state);
+int wait_and_cleanup(int *pids, int num_commands, int prev_input, int temp_stdout);
 int handle_pipeline(char **commands, t_env *env);
+
                     /*UNSET - HELPER FUNCTIONS*/
 
 
@@ -65,7 +70,7 @@ int     is_builtin(const char *cmd);
 char    **split_line(char *line);
 
 /*free the list*/
-void free_command_list(t_arg *cmd_list);
+// void free_command_list(t_arg *cmd_list);
 
 /*parsing*/
 
@@ -73,17 +78,21 @@ int		is_spc_opr(char c);
 
 // //
 int 	is_valid_var(char c);
-t_token	*ft_list_new(char *token);
+t_token *ft_list_new(char *token, int z);
 char	*ft_compress_spaces(char *s);
 int		ft_check_qoutes(char	*line);
 int	ft_skipe_qoute(char	*s, int i);
-// int		ft_skipe_qoute(char	*s, int i);
+int	ft_name_len(char *var, int i);
+int ft_have_sp_tb(char *s);
+int ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token, char *content);
+int	get_token(t_token **token, char	*s, int z);
+void free_tokens(t_token *tokens);
 int		ft_check_error(t_token *token);
 void	ft_putstr_fd(char *str, int fd);
 char	*ft_remove_quotes(char *s);
 // int		expanden(t_token **token, char **env);
 int	expanden(t_token **token, t_env *env);
-int	get_token(t_token **token, char	*s);
+// int	get_token(t_token **token, char	*s);
 int		ft_skipe_spaces(char *s, int index);
 char    *ft_remove_char(char *s, unsigned int index);
 void	ft_lstadd_back(t_token **lst, t_token *new);
@@ -94,10 +103,10 @@ t_arg	*ft_arg_new(int fd);
 void	ft_argadd_back(t_arg **lst, t_arg *new);
 t_arg	*ft_arglast(t_arg	*lst);
 
-int is_pipe_token(t_arg *arg);
-t_arg *get_next_arg(t_arg *arg);
-char *get_arg_content(t_arg *arg);
-void free_arg_content(t_arg *arg);
+// int is_pipe_token(t_arg *arg);
+// t_arg *get_next_arg(t_arg *arg);
+// char *get_arg_content(t_arg *arg);
+// void free_arg_content(t_arg *arg);
 // t_arg *convert_tokens_to_args(t_token *tokens);
 int ft_convert_token_to_arg(t_token *token, t_arg *args, int stat);
 
@@ -109,6 +118,9 @@ int apply_redirections(char **red);
 
 int count_heredocs(char **red);
 int *handle_heredocs(char **red, int count, t_env *env);
+char *read_line(void);
+int expand_variable(char **line, t_env *env);
+int write_to_pipe(int pipefd[2], char *line);
 
 int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i);//expending
 

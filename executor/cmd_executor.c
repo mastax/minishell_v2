@@ -1,107 +1,295 @@
 #include "../mini_shell.h"
 
-static char *find_command(char *cmd, char **envp)
+static char *get_path_from_env(char **envp)
 {
-    char *path;
-    char *path_copy;
-    char *dir;
-    char *full_path;
+    int i;
 
-    path = NULL;
-    path_copy = NULL;
-    full_path = NULL;
-    // Find the PATH variable
-    for (int i = 0; envp[i]; i++)
+    i = 0;
+    while (envp[i])
     {
         if (ft_strncmp(envp[i], "PATH=", 5) == 0)
-        {
-            path = envp[i] + 5;
-            break;
-        }
+            return (envp[i] + 5);
+        i++;
     }
-    if (!path)
-        return NULL;
+    return (NULL);
+}
 
-    path_copy = ft_strdup(path);
-    if (!path_copy)
-        return NULL;
+static char *create_full_path(char *dir, char *cmd)
+{
+    char *full_path;
+
+    full_path = malloc(ft_strlen(dir) + ft_strlen(cmd) + 2);
+    if (!full_path)
+        return (NULL);
+    ft_strlcpy(full_path, dir, ft_strlen(dir) + 1);
+    ft_strlcat(full_path, "/", ft_strlen(dir) + 2);
+    ft_strlcat(full_path, cmd, ft_strlen(dir) + ft_strlen(cmd) + 2);
+    return (full_path);
+}
+
+static char *search_command_in_path(char *path_copy, char *cmd)
+{
+    char *dir;
+    char *full_path;
 
     dir = ft_strtok(path_copy, ":");
     while (dir)
     {
-        full_path = malloc(ft_strlen(dir) + ft_strlen(cmd) + 2);
+        full_path = create_full_path(dir, cmd);
         if (!full_path)
-        {
-            free(path_copy);
-            return NULL;
-        }
-        snprintf(full_path, ft_strlen(dir) + ft_strlen(cmd) + 2, "%s/%s", dir, cmd);
-        // snprintf(full_path, sizeof(full_path), "%s/%s", dir, cmd);
-        // sprintf(full_path, "%s/%s", dir, cmd);
-        
+            return (NULL);
         if (access(full_path, X_OK) == 0)
-        {
-            free(path_copy);
-            return full_path;
-        }
-        
+            return (full_path);
         free(full_path);
         dir = ft_strtok(NULL, ":");
     }
+    return (NULL);
+}
 
+static char *find_command(char *cmd, char **envp)
+{
+    char *path;
+    char *path_copy;
+    char *full_path;
+
+    path = get_path_from_env(envp);
+    if (!path)
+        return (NULL);
+    path_copy = ft_strdup(path);
+    if (!path_copy)
+        return (NULL);
+    full_path = search_command_in_path(path_copy, cmd);
     free(path_copy);
-    return NULL;
+    return (full_path);
+}
+//=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+// static char *find_command(char *cmd, char **envp)
+// {
+//     char *path;
+//     char *path_copy;
+//     char *dir;
+//     char *full_path;
+
+//     path = NULL;
+//     path_copy = NULL;
+//     full_path = NULL;
+//     // Find the PATH variable
+//     for (int i = 0; envp[i]; i++)
+//     {
+//         if (ft_strncmp(envp[i], "PATH=", 5) == 0)
+//         {
+//             path = envp[i] + 5;
+//             break;
+//         }
+//     }
+//     if (!path)
+//         return NULL;
+
+//     path_copy = ft_strdup(path);
+//     if (!path_copy)
+//         return NULL;
+
+//     dir = ft_strtok(path_copy, ":");
+//      while (dir)
+//     {
+//         full_path = malloc(ft_strlen(dir) + ft_strlen(cmd) + 2);
+//         if (!full_path)
+//         {
+//             free(path_copy);
+//             return NULL;
+//         }
+//         ft_strlcpy(full_path, dir, ft_strlen(dir) + 1);
+//         ft_strlcat(full_path, "/", ft_strlen(dir) + 2);
+//         ft_strlcat(full_path, cmd, ft_strlen(dir) + ft_strlen(cmd) + 2);
+        
+//         if (access(full_path, X_OK) == 0)
+//         {
+//             free(path_copy);
+//             return full_path;
+//         }
+        
+//         free(full_path);
+//         dir = ft_strtok(NULL, ":");
+//     }
+
+//     free(path_copy);
+//     return NULL;
+// }
+
+// static char *find_command(char *cmd, char **envp)
+// {
+//     char *path;
+//     char *path_copy;
+//     char *dir;
+//     char *full_path;
+
+//     path = NULL;
+//     path_copy = NULL;
+//     full_path = NULL;
+//     // Find the PATH variable
+//     for (int i = 0; envp[i]; i++)
+//     {
+//         if (ft_strncmp(envp[i], "PATH=", 5) == 0)
+//         {
+//             path = envp[i] + 5;
+//             break;
+//         }
+//     }
+//     if (!path)
+//         return NULL;
+
+//     path_copy = ft_strdup(path);
+//     if (!path_copy)
+//         return NULL;
+
+//     dir = ft_strtok(path_copy, ":");
+//     while (dir)
+//     {
+//         full_path = malloc(ft_strlen(dir) + ft_strlen(cmd) + 2);
+//         if (!full_path)
+//         {
+//             free(path_copy);
+//             return NULL;
+//         }
+//         snprintf(full_path, ft_strlen(dir) + ft_strlen(cmd) + 2, "%s/%s", dir, cmd);
+//         // snprintf(full_path, sizeof(full_path), "%s/%s", dir, cmd);
+//         // sprintf(full_path, "%s/%s", dir, cmd);
+        
+//         if (access(full_path, X_OK) == 0)
+//         {
+//             free(path_copy);
+//             return full_path;
+//         }
+        
+//         free(full_path);
+//         dir = ft_strtok(NULL, ":");
+//     }
+
+//     free(path_copy);
+//     return NULL;
+// }
+
+
+//=-=-=-=-=-=-==-=--=-=-=-=-=-=-=-=-=---
+
+
+static char *get_command_path(char **argv, char **envp)
+{
+    char *cmd_path;
+
+    if (access(argv[0], X_OK) == 0)
+        return (argv[0]);
+    cmd_path = find_command(argv[0], envp);
+    if (!cmd_path)
+    {
+        ft_putstr_fd(argv[0], 2);
+        ft_putstr_fd(": command not found\n", 2);
+    }
+    return (cmd_path);
+}
+
+static int execute_child_process(char *cmd_path, char **argv, char **envp)
+{
+    if (execve(cmd_path, argv, envp) == -1)
+    {
+        perror("execve");
+        exit(1);
+    }
+    return (0);
+}
+
+static int handle_parent_process(pid_t pid)
+{
+    int status;
+
+    if (waitpid(pid, &status, 0) == -1)
+    {
+        perror("waitpid");
+        return (1);
+    }
+    if (WIFEXITED(status))
+        return (WEXITSTATUS(status));
+    else if (WIFSIGNALED(status))
+        return (128 + WTERMSIG(status));
+    return (0);
 }
 
 int execute_external_command(char **argv, char **envp)
 {
     pid_t pid;
-    int status;
     char *cmd_path;
+    int status;
 
-    if (access(argv[0], X_OK) == 0)
-        cmd_path = argv[0];
-    else
-    {
-        cmd_path = find_command(argv[0], envp);
-        if (!cmd_path)
-        {
-            fprintf(stderr, "%s: command not found\n", argv[0]);/////change
-            return (127);  // Command not found
-        }
-    }
+    cmd_path = get_command_path(argv, envp);
+    if (!cmd_path)
+        return (127);  // Command not found
     pid = fork();
     if (pid == -1)
     {
         perror("fork");
-        return 1;
+        return (1);
     }
     else if (pid == 0)
-    {
-        // Child process
-        if (execve(cmd_path, argv, envp) == -1)
-        {
-            perror("execve");
-            exit(1);
-        }
-    }
+        status = execute_child_process(cmd_path, argv, envp);
     else
-    {
-        // Parent process
-        if (waitpid(pid, &status, 0) == -1)
-        {
-            perror("waitpid");
-            return 1;
-        }
-        if (WIFEXITED(status))
-            return WEXITSTATUS(status);
-        else if (WIFSIGNALED(status))
-            return 128 + WTERMSIG(status);
-    }
+        status = handle_parent_process(pid);
     if (cmd_path != argv[0])
         free(cmd_path);
-    return 0;
+    return (status);
 }
+
+// int execute_external_command(char **argv, char **envp)
+// {
+//     pid_t pid;
+//     int status;
+//     char *cmd_path;
+
+//     if (access(argv[0], X_OK) == 0)
+//         cmd_path = argv[0];
+//     else
+//     {
+//         cmd_path = find_command(argv[0], envp);
+//         if (!cmd_path)
+//         {
+//             fprintf(stderr, "%s: command not found\n", argv[0]);/////change
+//             return (127);  // Command not found
+//         }
+//     }
+//     pid = fork();
+//     if (pid == -1)
+//     {
+//         perror("fork");
+//         return 1;
+//     }
+//     else if (pid == 0)
+//     {
+//         // Child process
+//         if (execve(cmd_path, argv, envp) == -1)
+//         {
+//             perror("execve");
+//             exit(1);
+//         }
+//     }
+//     else
+//     {
+//         // Parent process
+//         if (waitpid(pid, &status, 0) == -1)
+//         {
+//             perror("waitpid");
+//             return 1;
+//         }
+//         if (WIFEXITED(status))
+//             return WEXITSTATUS(status);
+//         else if (WIFSIGNALED(status))
+//             return 128 + WTERMSIG(status);
+//     }
+//     if (cmd_path != argv[0])
+//         free(cmd_path);
+//     return 0;
+// }
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 
 void save_original_io(t_io *io)
 {
@@ -161,51 +349,77 @@ void free_tokens(t_token *tokens)
 //     }
 // }
 
+//=-=-=-=-=-=-=-=-=-==-=--=
+
+static int handle_input(char *input, t_env *env)
+{
+    (void)env;
+    if (!input)
+    {
+        ft_putstr_fd("\nExiting shell.\n", 1);
+        return (1);
+    }
+    if (*input)
+        add_history(input);
+    return (0);
+}
+
+static int process_command(t_token *tokens, t_env *env, int *exit_status)
+{
+    t_arg *cmd;
+    int result;
+
+    cmd = ft_arg_new(2);
+    if (!cmd)
+        return (0);
+    if (ft_convert_token_to_arg(tokens, cmd, 0) == 0)
+    {
+        result = execute_command(cmd, env, exit_status);
+        if (result == -1)
+        {
+            free_command(cmd);
+            ft_putstr_fd("Exiting shell.\n", 1);
+            return (1);
+        }
+    }
+    free_command(cmd);
+    return (0);
+}
+
+static void cleanup(t_token *tokens)
+{
+    free_tokens(tokens);
+}
+
 int main_shell_loop(t_env *env)
 {
     char *input;
-    t_token *tokens = NULL;
-    t_arg *cmd;
-    int exit_status = 0;
+    t_token *tokens;
+    int exit_status;
 
+    exit_status = 0;
+    tokens = NULL;
     while (1)
     {
         input = readline("minishell> ");
-        if (!input)
-        {
-            printf("\nExiting shell.\n");
-            return exit_status;
-        }
-        if (*input)
-            add_history(input);
+        if (handle_input(input, env))
+            return (exit_status);
         if (parsing(input, &tokens, env) == 0)
         {
-            cmd = ft_arg_new(2);
-            if (cmd)
+            if (process_command(tokens, env, &exit_status))
             {
-                if (ft_convert_token_to_arg(tokens, cmd, 0) == 0)
-                {
-                    int result = execute_command(cmd, env, &exit_status);
-                    if (result == -1)  // Check for exit command
-                    {
-                        free_command(cmd);
-                        free_tokens(tokens);
-                        //ree_env(env);
-                        //free(input);
-                        printf("Exiting shell.\n");
-                        return exit_status;
-                    }
-                }
-                free_command(cmd);
+                cleanup(tokens);
+                return (exit_status);
             }
-            free_tokens(tokens);
+            cleanup(tokens);
             tokens = NULL;
         }
-       //free(input);
+        // free(input);  // Commented out as in the original
     }
-    return exit_status;
+    return (exit_status);
 }
 
+//=-=-=-=-=--=-=--==-=-=-=--=
 // int main_shell_loop(t_env *env)
 // {
 //     char *input;
@@ -235,7 +449,9 @@ int main_shell_loop(t_env *env)
 //                     {
 //                         free_command(cmd);
 //                         free_tokens(tokens);
+//                         //ree_env(env);
 //                         //free(input);
+//                         printf("Exiting shell.\n");
 //                         return exit_status;
 //                     }
 //                 }
@@ -244,7 +460,7 @@ int main_shell_loop(t_env *env)
 //             free_tokens(tokens);
 //             tokens = NULL;
 //         }
-//         //free(input);
+//        //free(input);
 //     }
 //     return exit_status;
 // }
@@ -292,176 +508,83 @@ int main_shell_loop(t_env *env)
 //     return exit_status;
 // }
 
-
-// int execute_command(t_arg *cmd, t_env *env, int *exit_status) // fix the problem of pip and heredoc but pwd cant exit after
+// int main_shell_loop(t_env *env)
 // {
-//     t_io io;
-//     int status = 0;
-//     int pipe_fd[2];
-//     pid_t pid;
-//     int prev_pipe_read = STDIN_FILENO;
-//     int cmd_count = 0;
-//     pid_t *pids = NULL;
+//     char *input;
+//     t_token *tokens = NULL;
+//     t_arg *cmd;
+//     int exit_status = 0;
 
-//     save_original_io(&io);
-
-//     // Count commands and allocate pid array
-//     for (t_arg *tmp = cmd; tmp; tmp = tmp->next)
-//         cmd_count++;
-//     pids = malloc(sizeof(pid_t) * cmd_count);
-//     if (!pids) {
-//         perror("malloc");
-//         return 1;
-//     }
-
-//     int i = 0;
-//     while (cmd)
+//     while (1)
 //     {
-//         if (ft_strcmp(cmd->arg[0], "exit") == 0)
+//         input = readline("minishell> ");
+//         if (!input)
 //         {
-//             restore_io(&io);
-//             if (cmd->arg[1])
-//                 *exit_status = ft_atoi(cmd->arg[1]);
-//             free(pids);
-//             return (-1);  // Special return value to indicate exit
+//             printf("\nExiting shell.\n");
+//             return exit_status;
 //         }
-        
-//         // Check for empty command
-//         if (!cmd->arg[0] || cmd->arg[0][0] == '\0')
+//         if (*input)
+//             add_history(input);
+//         if (parsing(input, &tokens, env) == 0)
 //         {
-//             printf("minishell: : command not found\n");
-//             *exit_status = 127;
-//             cmd = cmd->next;
-//             continue;
+//             cmd = ft_arg_new(2);
+//             if (cmd)
+//             {
+//                 if (ft_convert_token_to_arg(tokens, cmd, 0) == 0)
+//                 {
+//                     int result = execute_command(cmd, env, &exit_status);
+//                     if (result == -1)  // Check for exit command
+//                     {
+//                         free_command(cmd);
+//                         free_tokens(tokens);
+//                         //free(input);
+//                         return exit_status;
+//                     }
+//                 }
+//                 free_command(cmd);
+//             }
+//             free_tokens(tokens);
+//             tokens = NULL;
 //         }
-//         int heredoc_count = count_heredocs(cmd->red);
-//         int *heredoc_fds = NULL;
-//         if (heredoc_count > 0)
-//         {
-//             heredoc_fds = handle_heredocs(cmd->red, heredoc_count, env);
-//             if (!heredoc_fds)
-//                 return 1;
-//         }
-
-//         if (cmd->next)
-//         {
-//             if (pipe(pipe_fd) == -1)
-//             {
-//                 perror("pipe");
-//                 free(pids);
-//                 return 1;
-//             }
-//         }
-
-//         pid = fork();
-//         if (pid == -1)
-//         {
-//             perror("fork");
-//             if (heredoc_fds)
-//             {
-//                 for (int i = 0; i < heredoc_count; i++)
-//                     close(heredoc_fds[i]);
-//                 free(heredoc_fds);
-//             }
-//             return 1;
-//         }
-//         else if (pid == 0) // Child process
-//         {
-//             if (prev_pipe_read != STDIN_FILENO)
-//             {
-//                 dup2(prev_pipe_read, STDIN_FILENO);
-//                 close(prev_pipe_read);
-//             }
-//             if (cmd->next)
-//             {
-//                 dup2(pipe_fd[1], STDOUT_FILENO);
-//                 close(pipe_fd[0]);
-//                 close(pipe_fd[1]);
-//             }
-
-//             if (heredoc_fds)
-//             {
-//                 dup2(heredoc_fds[heredoc_count - 1], STDIN_FILENO);
-//                 for (int i = 0; i < heredoc_count; i++)
-//                     close(heredoc_fds[i]);
-//             }
-
-//             if (apply_redirections(cmd->red) == -1)
-//                 exit(1);
-
-//             if (is_builtin(cmd->arg[0]))
-//                 return(execute_builtin(cmd, env, exit_status));
-//             else
-//                 exit(execute_external_command(cmd->arg, env->env_vars));
-//         }
-//         else // Parent process
-//         {
-//             pids[i++] = pid;
-
-//             if (prev_pipe_read != STDIN_FILENO)
-//                 close(prev_pipe_read);
-
-//             if (cmd->next)
-//             {
-//                 close(pipe_fd[1]);
-//                 prev_pipe_read = pipe_fd[0];
-//             }
-//             else
-//             {
-//                 close(pipe_fd[0]);
-//                 close(pipe_fd[1]);
-//             }
-
-//             cmd = cmd->next;
-//         }
+//         //free(input);
 //     }
-
-//     // Wait for all child processes
-//     for (int j = 0; j < i; j++)
-//     {
-//         waitpid(pids[j], &status, 0);
-//         if (WIFEXITED(status))
-//             *exit_status = WEXITSTATUS(status);
-//     }
-
-//     free(pids);
-//     restore_io(&io);
-//     return *exit_status;
+//     return exit_status;
 // }
 
-int execute_command(t_arg *cmd, t_env *env, int *exit_status)
+
+int execute_command(t_arg *cmd, t_env *env, int *exit_status) // fix the problem of pip and heredoc but pwd cant exit after
 {
     t_io io;
     int status = 0;
     int pipe_fd[2];
     pid_t pid;
     int prev_pipe_read = STDIN_FILENO;
+    int cmd_count = 0;
+    pid_t *pids = NULL;
 
     save_original_io(&io);
 
+    // Count commands and allocate pid array
+    for (t_arg *tmp = cmd; tmp; tmp = tmp->next)
+        cmd_count++;
+    pids = malloc(sizeof(pid_t) * cmd_count);
+    if (!pids) {
+        perror("malloc");
+        return 1;
+    }
+
+    int i = 0;
     while (cmd)
     {
-        // Handle built-in commands that need to be executed in the main process
-        if (is_builtin(cmd->arg[0]))
+        if (ft_strcmp(cmd->arg[0], "exit") == 0)
         {
-            if (ft_strcmp(cmd->arg[0], "exit") == 0)
-            {
-                restore_io(&io);
-                if (cmd->arg[1])
-                    *exit_status = ft_atoi(cmd->arg[1]);
-                return (-1);  // Special return value to indicate exit
-            }
-            else
-            // else if (//ft_strcmp(cmd->arg[0], "cd") == 0 || 
-            //          ft_strcmp(cmd->arg[0], "export") == 0 ||
-            //          ft_strcmp(cmd->arg[0], "unset") == 0)
-            {
-                *exit_status = execute_builtin(cmd, env, exit_status);
-                cmd = cmd->next;
-                continue;
-            }
+            restore_io(&io);
+            if (cmd->arg[1])
+                *exit_status = ft_atoi(cmd->arg[1]);
+            free(pids);
+            return (-1);  // Special return value to indicate exit
         }
-
+        
         // Check for empty command
         if (!cmd->arg[0] || cmd->arg[0][0] == '\0')
         {
@@ -470,7 +593,6 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
             cmd = cmd->next;
             continue;
         }
-
         int heredoc_count = count_heredocs(cmd->red);
         int *heredoc_fds = NULL;
         if (heredoc_count > 0)
@@ -485,6 +607,7 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
             if (pipe(pipe_fd) == -1)
             {
                 perror("pipe");
+                free(pids);
                 return 1;
             }
         }
@@ -526,21 +649,13 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
                 exit(1);
 
             if (is_builtin(cmd->arg[0]))
-            {
-                int builtin_result = execute_builtin(cmd, env, exit_status);
-                exit(builtin_result);
-            }
+                return(execute_builtin(cmd, env, exit_status));
             else
                 exit(execute_external_command(cmd->arg, env->env_vars));
         }
         else // Parent process
         {
-            if (heredoc_fds)
-            {
-                for (int i = 0; i < heredoc_count; i++)
-                    close(heredoc_fds[i]);
-                free(heredoc_fds);
-            }
+            pids[i++] = pid;
 
             if (prev_pipe_read != STDIN_FILENO)
                 close(prev_pipe_read);
@@ -552,22 +667,23 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
             }
             else
             {
-                if (pipe_fd[0] != STDIN_FILENO)
-                    close(pipe_fd[0]);
-                if (pipe_fd[1] != STDOUT_FILENO)
-                    close(pipe_fd[1]);
-                waitpid(pid, &status, 0);
-                *exit_status = WEXITSTATUS(status);
+                close(pipe_fd[0]);
+                close(pipe_fd[1]);
             }
 
             cmd = cmd->next;
         }
     }
 
-    // Wait for any remaining child processes
-    while (wait(NULL) > 0)
-        ;
+    // Wait for all child processes
+    for (int j = 0; j < i; j++)
+    {
+        waitpid(pids[j], &status, 0);
+        if (WIFEXITED(status))
+            *exit_status = WEXITSTATUS(status);
+    }
 
+    free(pids);
     restore_io(&io);
     return *exit_status;
 }

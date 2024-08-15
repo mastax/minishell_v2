@@ -409,11 +409,11 @@ int main_shell_loop(t_env *env)
     int exit_status;
 
     exit_status = 0;
-    tokens = NULL;
     sig_init();
 
     while (1)
     {
+        tokens = NULL;
         g_sig.pid = 0;  // Reset pid before each command
         signal(SIGINT, sig_int);
         signal(SIGQUIT, sig_quit);
@@ -441,11 +441,13 @@ int main_shell_loop(t_env *env)
             cleanup(tokens);
             tokens = NULL;
         }
-        else if (parse_result == 1)
+          else if (parse_result == -1)
         {
+            cleanup(tokens);
             g_sig.exit_status = 2;
             continue;
         }
+
         exit_status = g_sig.exit_status;
     }
     return (exit_status);

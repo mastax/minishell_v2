@@ -5,7 +5,7 @@ int check_format(char *arg)
     int cur;
     int has_equal;
 
-    if (!ft_isalpha(arg[0]))
+    if (!ft_isalpha(arg[0]) && arg[0] != '_')
          return (print_error(1, &arg[0]));
     cur = 0;
     has_equal = 0;
@@ -16,14 +16,36 @@ int check_format(char *arg)
         else if (arg[cur] == '+' && arg[cur+1] == '=')
             has_equal = 1;
         else if (!ft_isalnum(arg[cur]) && arg[cur] != '_')
-            if (!has_equal)
-                return (print_error(2, &arg[cur]));
+            return (print_error(2, &arg[cur]));
         cur++;
     }
-    if (!has_equal)
-        return (1);
-    return (0);
+    return (0);  // Return 0 (success) regardless of whether there's an equals sign
 }
+
+// int check_format(char *arg)
+// {
+//     int cur;
+//     int has_equal;
+
+//     if (!ft_isalpha(arg[0]))
+//          return (print_error(1, &arg[0]));
+//     cur = 0;
+//     has_equal = 0;
+//     while (arg[cur])
+//     {
+//         if (arg[cur] == '=')
+//             has_equal = 1;
+//         else if (arg[cur] == '+' && arg[cur+1] == '=')
+//             has_equal = 1;
+//         else if (!ft_isalnum(arg[cur]) && arg[cur] != '_')
+//             if (!has_equal)
+//                 return (print_error(2, &arg[cur]));
+//         cur++;
+//     }
+//     if (!has_equal)
+//         return (1);
+//     return (0);
+// }
 
 int print_error(int error_code, char *content)
 {

@@ -821,7 +821,13 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
         return 1;
 
     // Add this check for single builtin command
-    if (command_count == 1 && is_builtin(cmd->arg[0])) {
+    if (command_count == 1 && is_builtin(cmd->arg[0]))
+    {
+        if (apply_redirections(cmd->red) == -1)
+        {
+        restore_io(&io);
+        return 1;
+        }
         int result = execute_builtin(cmd, env, exit_status);
         restore_io(&io);
         return result;

@@ -65,7 +65,10 @@ int append_new_var(t_env *env, char *s)
         new_env[i] = env->env_vars[i];
         i++;
     }
-    new_env[env->count] = ft_strdup(s);
+    if (ft_strchr(s, '='))
+        new_env[env->count] = ft_strdup(s);
+    else
+        new_env[env->count] = ft_strdup(s);  // Just duplicate the name for variables without values
     if (!new_env[env->count])
     {
         free(new_env);
@@ -78,6 +81,33 @@ int append_new_var(t_env *env, char *s)
     return (1);
 }
 
+// int append_new_var(t_env *env, char *s)
+// {
+//     char **new_env;
+//     int i;
+
+//     new_env = malloc(sizeof(char*) * (env->count + 2));
+//     if (!new_env)
+//         return (0);
+//     i = 0;
+//     while (i < env->count)
+//     {
+//         new_env[i] = env->env_vars[i];
+//         i++;
+//     }
+//     new_env[env->count] = ft_strdup(s);
+//     if (!new_env[env->count])
+//     {
+//         free(new_env);
+//         return (0);
+//     }
+//     new_env[env->count + 1] = NULL;
+//     free(env->env_vars);
+//     env->env_vars = new_env;
+//     env->count++;
+//     return (1);
+// }
+
 int ft_export(t_env *env, char *s)
 {
     char    *name;
@@ -88,19 +118,57 @@ int ft_export(t_env *env, char *s)
     if (check_format(s))
         return (2);
     parse_export_string(s, &name, &value, &is_append);
-    if (find_and_update_var(env, name, value, is_append, s))
+    
+    if (!value)  // No '=' in the string
     {
-        free(name);
-        return (1);
+        if (!find_and_update_var(env, name, NULL, 0, s))
+        {
+            if (!append_new_var(env, name))  // Pass only the name
+            {
+                free(name);
+                return (0);
+            }
+        }
     }
-    if (!append_new_var(env, s))
+    else
     {
-        free(name);
-        return (0);
+        if (!find_and_update_var(env, name, value, is_append, s))
+        {
+            if (!append_new_var(env, s))
+            {
+                free(name);
+                return (0);
+            }
+        }
     }
+    
     free(name);
     return (1);
 }
+
+// int ft_export(t_env *env, char *s)
+// {
+//     char    *name;
+//     char    *value;
+//     int     is_append;
+
+//     is_append = 0;
+//     if (check_format(s))
+//         return (2);
+//     parse_export_string(s, &name, &value, &is_append);
+//     if (find_and_update_var(env, name, value, is_append, s))
+//     {
+//         free(name);
+//         return (1);
+//     }
+//     if (!append_new_var(env, s))
+//     {
+//         free(name);
+//         return (0);
+//     }
+//     free(name);
+//     return (1);
+// }
 
 int ft_exports(t_env *env, char **args, int *exit_status)
 {

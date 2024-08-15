@@ -1,22 +1,10 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parsing.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 09:54:16 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/14 11:53:03 by sel-hasn         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../mini_shell.h"
 
 char	*ft_add_char(char *s, unsigned int index, char to_add)
 {
-	unsigned int	j;
-	int				i;
-	char			*str;
+	int		i;
+	unsigned int		j;
+	char	*str;
 
 	i = 0;
 	j = 0;
@@ -108,28 +96,53 @@ char	*ft_add_space(char *line)
 	return (line);
 }
 
-static char	*print_type(t_type type)
+// static char	*print_type(t_type type)
+// {
+// 	if (WORD == type)
+// 		return ("WORD");
+// 	else if (PIPE == type)
+// 		return ("PIPE");
+// 	else if (RED_IN == type)
+// 		return ("RED_IN");
+// 	else if (RED_OUT == type)
+// 		return ("RED_OUT");
+// 	else if (HER_DOC == type)
+// 		return ("HER_DOC");
+// 	else if (APPEND == type)
+// 		return ("APPEND");
+// 	else
+// 		return (NULL);
+// }
+
+//i add new function for the alone function:
+
+int is_lone_pipe(char *input)
 {
-	if (WORD == type)
-		return ("WORD");
-	else if (PIPE == type)
-		return ("PIPE");
-	else if (RED_IN == type)
-		return ("RED_IN");
-	else if (RED_OUT == type)
-		return ("RED_OUT");
-	else if (HER_DOC == type)
-		return ("HER_DOC");
-	else if (APPEND == type)
-		return ("APPEND");
-	else
-		return (NULL);
+    while (*input && ft_is_space(*input))
+        input++;
+    
+    if (*input == '|')
+    {
+        input++;
+        while (*input && ft_is_space(*input))
+            input++;
+        
+        if (*input == '\0')
+            return 1;  // It's a lone pipe
+    }
+    
+    return 0;  // Not a lone pipe
 }
 
-int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
+int	parsing(char *line, t_token	**token, t_env *env)
 {
-	t_token	*tmp;
+	t_token *tmp;
 
+	if (is_lone_pipe(line))
+    {
+        ft_putstr_fd("syntax error near unexpected token '|'\n", 2);
+        return 1;  // Indicate an error
+    }
 	line = ft_add_space(line);
 	if (ft_check_qoutes(line) == -1)
 		return (-1);
@@ -138,7 +151,7 @@ int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
 		return (-1);
 	if (*token == NULL)
 		return (-1);
-	if (expanding(token, env, exit_status) == -1)
+	if (expanden(token, env) == -1)
 		return (-1);
 	tmp = *token;
 	if ((*token)->content[ft_skipe_spaces((*token)->content, 0)] == '\0')
@@ -147,7 +160,7 @@ int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
 	{
 		if (tmp->qout_rm == true)
 			tmp->content = ft_remove_quotes(tmp->content);
-		printf("2!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
+		//printf("1!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
 		tmp = tmp->next;
 	}
 	if (ft_check_error(*token) == 1)

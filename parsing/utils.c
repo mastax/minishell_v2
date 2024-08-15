@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/13 09:45:04 by sel-hasn          #+#    #+#             */
+/*   Updated: 2024/08/14 12:19:51 by sel-hasn         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../mini_shell.h"
 
 char	*ft_substr(char *s, unsigned int start, size_t len)
@@ -36,29 +48,31 @@ int	ft_skipe_spaces(char *line, int i)
 	return (i);
 }
 
-int ft_skipe_qoute(char *s, int i)
+int	ft_skipe_qoute(char *s, int i)
 {
-    if (s[i] == '\0')
-		return (i);
-    if ((s[i] == '"' && s[i + 1] == '"') || (s[i] == '\'' && s[i + 1] == '\''))
-        return (i + 1);
-    char quote = (s[i] == '"' || s[i] == '\'') ? s[i] : '\0';
-    if (quote)
-    {
-        i++;
-        while (s[i] != '\0' && s[i] != quote)
-            i++;
-        if (s[i] == quote)
+	char	quote;
+
+	quote = s[i];
+	if (((s[i] == '"' && s[i + 1] == '"') || (s[i] == '\'' && s[i + 1] == '\''))
+	 && s[i + 2] == '\0')
+		return (i + 2);
+	if (quote)
+	{
+		i++;
+		while (s[i] != '\0' && s[i] != quote)
 			i++;
-    }
-    while (s[i] != '\0')
-    {
-        if (s[i] == ' ' || s[i] == '\t' || s[i] == '|' || s[i] == '>' || s[i] == '<')
-            break;
-        if (s[i] == '"' || s[i] == '\'')
-            i = ft_skipe_qoute(s, i);
-        else
-            i++;
-    }
-    return (i);
+		if (s[i] == quote)
+			i++;
+	}
+	while (s[i] != '\0')
+	{
+		if (s[i] == ' ' || s[i] == '\t' || s[i] == '|' || s[i] == '>'
+			|| s[i] == '<')
+			break ;
+		if (s[i] == '"' || s[i] == '\'')
+			i = ft_skipe_qoute(s, i);
+		else
+			i++;
+	}
+	return (i);
 }

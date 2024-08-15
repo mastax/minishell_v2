@@ -33,9 +33,11 @@ char	*ft_strndup(char *str, int n);
 char	**ft_split(char const *s, char c);//
 int     ft_isalnum(int c);
 int     ft_isalpha(int c);
+int		ft_is_space(int k);
 void	ft_putnbr_fd(int n, int fd);
 void	ft_putchar_fd(char c, int fd);
 char    *ft_strtok(char *str, const char *delim);
 char    *ft_strcpy(char *s1, const char *s2);
+char	*ft_itoa(int n);
 
 #endif

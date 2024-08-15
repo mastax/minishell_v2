@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   utils2.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 09:43:25 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/13 09:43:39 by sel-hasn         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../mini_shell.h"
 
 void	ft_putstr_fd(char *str, int fd)
@@ -20,10 +8,10 @@ void	ft_putstr_fd(char *str, int fd)
 		write (fd, str, ft_strlen(str));
 }
 
-int	is_valid_var(char c)
+int is_valid_var(char c)
 {
 	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z')
-		|| (c >= 'A' && c <= 'Z') || c == '_')
+	|| (c >= 'A' && c <= 'Z') || c == '_')
 		return (1);
 	else
 		return (0);

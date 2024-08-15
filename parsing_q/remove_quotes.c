@@ -1,22 +1,10 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   remove_quotes.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 09:53:21 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/13 09:53:47 by sel-hasn         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../mini_shell.h"
+#include "../mini_shell.c"
 
 char	*ft_remove_char(char *s, unsigned int index)
 {
-	unsigned int	i;
-	int				j;
-	char			*str;
+	unsigned int		i;
+	int		j;
+	char	*str;
 
 	i = 0;
 	j = 0;
@@ -68,7 +56,7 @@ char	*ft_handle_quotes(char *s, int *i)
 
 char	*ft_remove_quotes(char *s)
 {
-	int	i;
+	int i;
 
 	i = 0;
 	while (s[i] != '\0')

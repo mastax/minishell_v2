@@ -43,3 +43,12 @@ int	ft_isalnum(int c)
 		return (1);
 	return (0);
 }
+
+int		ft_is_space(int k)
+{
+	k = (unsigned char)k;
+	if (k == '\t' || k == '\n' || k == '\v' || k == '\f' || k == '\r'
+		|| k == ' ')
+		return (1);
+	return (0);
+}

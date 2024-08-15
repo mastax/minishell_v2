@@ -32,15 +32,20 @@ SRC = builtin/cd.c \
       parsing/utils.c \
       parsing/utils1.c \
       parsing/utils2.c \
+      parsing/expand_exit_status.c\
       parsing/arg_utils.c \
       heredoc/heredoc.c \
       heredoc/heredoc_utils.c \
+      signals/handle_signals.c \
 	  mini_shell.c
 OBJ = $(SRC:.c=.o)
 RM = rm -f
 FLAGC = -Wall -Wextra -Werror #-g -fsanitize=address
 LDFLAGS = -lreadline
 HEADER = mini_shell.h
+READLINEDIR = $(shell brew --prefix readline)
+LDFLAGS = -L$(READLINEDIR)/lib -lreadline
+CPPFLAGS = -I$(READLINEDIR)/include
 
 all: $(NAME)
 
@@ -48,7 +53,7 @@ $(NAME): $(OBJ)
 	$(CC) $(OBJ) $(FLAGC) -o $(NAME) $(LDFLAGS)
 
 %.o: %.c $(HEADER)
-	$(CC) $(FLAGC) -c $< -o $@
+	$(CC) $(FLAGC) $(CPPFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJ)

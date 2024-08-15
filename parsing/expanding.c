@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expanding.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/13 09:55:47 by sel-hasn          #+#    #+#             */
+/*   Updated: 2024/08/14 12:11:25 by sel-hasn         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../mini_shell.h"
 
 int	ft_strncmp(char *s1, const char *s2, size_t n)
 {
-	size_t	i;
+	size_t			i;
 	unsigned char	*str1;
 	unsigned char	*str2;
 
@@ -18,15 +30,15 @@ int	ft_strncmp(char *s1, const char *s2, size_t n)
 	return (0);
 }
 
-
 char	*get_var_from_env(char *var, int var_len, t_env *env)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (env->env_vars[i] != NULL)
 	{
-		if (ft_strncmp(env->env_vars[i], var, var_len) == 0 && env->env_vars[i][var_len] == '=')
+		if (ft_strncmp(env->env_vars[i], var, var_len) == 0
+			&& env->env_vars[i][var_len] == '=')
 			return (&(env->env_vars[i][var_len + 1]));
 		i++;
 	}
@@ -35,9 +47,10 @@ char	*get_var_from_env(char *var, int var_len, t_env *env)
 
 int	ft_var_update(int i, char **var, char *to_update, char	*secend_part)
 {
-	char	*first_part = NULL;
+	char	*first_part;
 	char	*update_var;
 
+	first_part = NULL;
 	if (i == 0 && !to_update)
 		first_part = ft_strdup("");
 	else if (i == 0 && to_update)
@@ -64,7 +77,7 @@ int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i)
 	int		j;
 	char	*var_name;
 
-	while (var[0][i] != 0)
+	while (var[0][i] != '\0')
 	{
 		if (var[0][i] == '\'')
 			i = ft_skipe_qoute(*var, i);
@@ -75,44 +88,44 @@ int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i)
 			if (!var_name)
 				return (-1);
 			if (prv_type == WORD || (get_var_from_env(var_name, j, env) != NULL
-				&& (prv_type == APPEND || prv_type == RED_IN || prv_type == RED_OUT)))
-					if (ft_var_update(i, var, get_var_from_env(var_name, j, env), &var[0][i + j + 1]) == -1)
-						return (-1);
+					&& (prv_type == APPEND || prv_type == RED_IN
+						|| prv_type == RED_OUT)) || prv_type == PIPE)
+				if (ft_var_update(i, var, get_var_from_env(var_name, j, env),
+						&var[0][i + j + 1]) == -1)
+					return (-1);
 		}
 		else if ((var[0][i] == '$' && (is_valid_var(var[0][i + 1]) != 1))
-			|| var[0][i] != '$')
+			|| (var[0][i] != '$' && var[0][i] != '\0'))
 			i++;
 	}
 	return (0);
 }
 
-int	expanden(t_token **token, t_env *env)
+int	expanding(t_token **token, t_env *env, int exit_status)
 {
-	t_token *tmp;
+	t_token	*t;
 	t_type	prv_type;
-	int i;
 
-	tmp = *token;
-	prv_type = tmp->type;
-	while (tmp)
+	t = *token;
+	prv_type = t->type;
+	while (t)
 	{
 		if (prv_type != HER_DOC)
-			i = ft_expand_variable(&tmp->content, env, prv_type, 0);
-		// tmp->content = expand_exit_status();
-		if (i == -1)
 		{
-			ft_putstr_fd("minishill: malloc Error\n", 2);
-			return (-1);
+			if (ft_expand_variable(&t->content, env, prv_type, 0) == -1)
+				return (ft_putstr_fd("minishell : malloc error", 2), -1);
+			if (ft_expand_exit_status(&t->content, exit_status) == -1)
+				return (ft_putstr_fd("minishell : malloc error", 2), -1);
 		}
-		prv_type = tmp->type;
-		if (ft_have_sp_tb(tmp->content) == 1)
+		prv_type = t->type;
+		if (ft_have_sp_tb(t->content) == 1)
 		{
-			if (ft_handl_spichel_cond(token, tmp, tmp->next, tmp->content) == -1)
+			if (ft_handl_spichel_cond(token, t, t->next, t->content) == -1)
 				return (-1);
-			tmp = *token;
+			t = *token;
 		}
-		else 
-			tmp = tmp->next;
+		else
+			t = t->next;
 	}
-	return (0);
+	return (exit_status);
 }

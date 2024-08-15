@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   check_error.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 10:03:08 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/13 10:03:14 by sel-hasn         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../mini_shell.h"
 
 int	check_pipe(t_token *token, t_token *next_token)
@@ -38,7 +26,7 @@ int	ft_check_error(t_token *token)
 {
 	if (token->type == PIPE)
 		return (printf("syntax error near unexpected token '%s'\n"
-				, token->content), 1);
+					, token->content), 1);
 	while (token->next)
 	{
 		if (check_pipe(token, token->next) != 0

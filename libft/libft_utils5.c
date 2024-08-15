@@ -48,3 +48,50 @@ char *ft_strcpy(char *s1, const char *s2)
 	s1[i] = 0;
 	return (s1);
 }
+
+static int	lenght(long nbr)
+{
+	int	lenght;
+
+	lenght = 0;
+	if (nbr == 0)
+		return (1);
+	if (nbr < 0)
+	{
+		nbr *= -1;
+		lenght++;
+	}
+	while (nbr > 0)
+	{
+		nbr /= 10;
+		lenght++;
+	}
+	return (lenght);
+}
+
+char	*ft_itoa(int n)
+{
+	char	*str;
+	long	nbr;
+	int		i;
+
+	nbr = n;
+	i = lenght(nbr);
+	str = (char *)malloc (i + 1);
+	if (!str)
+		return (NULL);
+	str[i] = '\0';
+	if (nbr == 0)
+		str[0] = 48;
+	else if (n < 0)
+	{
+		str[0] = '-';
+		nbr = -nbr;
+	}
+	while (nbr > 0 && i-- >= 0)
+	{
+		str[i] = 48 + (nbr % 10);
+		nbr = nbr / 10;
+	}
+	return (str);
+}

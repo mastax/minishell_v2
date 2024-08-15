@@ -30,14 +30,15 @@ int	count_args_red(t_token *token, int type)
 	return (0);
 }
 
-char	**ft_handl_args(char *content, char **arv, int type)
+char **ft_handl_args(char *content, char **arv, int type)
 {
-	int	i;
+	int i;
 
 	i = 0;
 	if (type == 1)
 	{
 		arv[0] = ft_strdup(content);
+		// printf("arv[i] : %s %s\n", content, arv[i]);
 		arv[1] = NULL;
 	}
 	else if (type == 2)
@@ -45,6 +46,7 @@ char	**ft_handl_args(char *content, char **arv, int type)
 		while (arv[i] != NULL)
 			i++;
 		arv[i] = ft_strdup(content);
+		// printf("arv[i] : %s %s\n", content, arv[i]);
 		arv[i + 1] = NULL;
 	}
 	return (arv);
@@ -79,10 +81,10 @@ int	ft_handle_convert(t_token *token, t_arg *args, int type)
 	return (0);
 }
 
-int	ft_convert_token_to_arg(t_token *token, t_arg *args, int stat)
+int ft_convert_token_to_arg(t_token *token, t_arg *args, int stat)
 {
-	t_arg	*tmp_arg;
-	t_token	*tmp_token;
+	t_arg    *tmp_arg;
+	t_token  *tmp_token;
 
 	tmp_arg = args;
 	tmp_token = token;
@@ -108,10 +110,10 @@ int	ft_convert_token_to_arg(t_token *token, t_arg *args, int stat)
 	return (0);
 }
 
-void	ft_prin_arg_red(t_arg **arg)
+void ft_prin_arg_red(t_arg **arg)
 {
-	int	i;
-	int	j;
+	int i;
+	int j;
 	t_arg *tmp = *arg;
 
 	while (tmp)

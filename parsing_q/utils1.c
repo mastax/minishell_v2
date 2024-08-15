@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   utils1.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 09:43:46 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/14 12:10:12 by sel-hasn         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../mini_shell.h"
 
 static int	ft_handle_quotes(char *s, int i)
@@ -78,18 +66,19 @@ int	get_token_len(char	*s, int i)
 	int	j;
 
 	j = i;
-	// printf("1%c--%d\n", s[i], i);
-	if (s[i] == '"' || s[i] == '\'')
+	if ((s[i] == '"' && s[i + 1] == '"') || (s[i] == '\''
+			&& s[i + 1] == '\''))
+		return (2);
+	else if (s[i] == '"' || s[i] == '\'')
 		i = ft_skipe_qoute(s, i);
 	else
 	{
 		while (s[i] != '\0' && s[i] != ' ' && s[i] != '\t'
-			&& s[i] != '"' && s[i] != '\'')
+		&& s[i] != '"' && s[i] != '\'')
 			i++;
 		if (s[i] == '"' || s[i] == '\'')
 			i = ft_skipe_qoute(s, i);
 	}
-	// printf("2%c--%d\n", s[i], i);
 	return (i - j);
 }
 
@@ -110,10 +99,11 @@ int	get_token(t_token **token, char	*s, int z)
 		contant = ft_substr(s, i, j);
 		if (!contant)
 			return (-1);
-		// printf("%s\n", contant);
 		new = ft_list_new(contant, z);
 		if (!new)
 			return (-1);
+		// if (new->content[0] == '\"')
+		// 	printf ("|%s->|%c||\n", new->content, new->content[i + j]);
 		ft_lstadd_back(token, new);
 		i = i + j;
 	}

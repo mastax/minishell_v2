@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expanding_utils.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/13 10:00:52 by sel-hasn          #+#    #+#             */
+/*   Updated: 2024/08/13 10:01:34 by sel-hasn         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../mini_shell.h"
 
 int	ft_name_len(char *var, int i)
 {
-	int len;
+	int	len;
 
 	len = 0;
 	while (var[i + len] != '\0' && (is_valid_var(var[i + len]) == 1))
@@ -10,9 +22,9 @@ int	ft_name_len(char *var, int i)
 	return (len);
 }
 
-int ft_have_sp_tb(char *s)
+int	ft_have_sp_tb(char *s)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (!s)
@@ -21,6 +33,8 @@ int ft_have_sp_tb(char *s)
 	if (s[i] == '\0')
 		return (0);
 	i = 0;
+	if (s[0] == '|' && s[1] == '\0')
+		return (0);
 	if (s[0] == '"' || s[0] == '\'')
 		return (0);
 	while (s[i])
@@ -36,7 +50,7 @@ int ft_have_sp_tb(char *s)
 
 t_token	*list_befor_last(t_token *list)
 {
-	t_token *tmp;
+	t_token	*tmp;
 
 	tmp = list;
 	if (!tmp)
@@ -46,42 +60,11 @@ t_token	*list_befor_last(t_token *list)
 	return (tmp);
 }
 
-// int ft_skipe_qoute(char *s, int i)
-// {
-//     if (s[i] == '\0')
-// 		return i;
-//     if ((s[i] == '"' && s[i + 1] == '"') || (s[i] == '\'' && s[i + 1] == '\''))
-//         return (i + 1);
-//     char quote = (s[i] == '"' || s[i] == '\'') ? s[i] : '\0';
-//     if (quote)
-//     {
-//         i++;
-//         while (s[i] != '\0' && s[i] != quote)
-//             i++;
-//         if (s[i] == quote)
-// 			i++;
-//     }
-//     while (s[i] != '\0')
-//     {
-//         if (s[i] == ' ' || s[i] == '\t' || s[i] == '|' || s[i] == '>' || s[i] == '<')
-//             break;
-//         if (s[i] == '"' || s[i] == '\'')
-//             i = ft_skipe_qoute(s, i);
-//         else
-//             i++;
-//     }
-//     return i;
-// }
-
-// int	split_token(t_arg *token, char *line)
-// {
-
-// }
-
-int ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token, char *content)
+int	ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token,
+char *content)
 {
-	t_token *new_tokens;
-	t_token *tmp;
+	t_token	*new_tokens;
+	t_token	*tmp;
 
 	new_tokens = NULL;
 	if (get_token(&new_tokens, content, 2) == -1)
@@ -103,4 +86,3 @@ int ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token, ch
 	free(now);
 	return (0);
 }
-

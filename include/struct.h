@@ -58,4 +58,14 @@ typedef struct s_pipeline_state //for pip
     t_env *env;
 } t_pipeline_state;
 
+typedef struct s_sig
+{
+    int             sigint;
+    int             sigquit;
+    int             exit_status;
+    pid_t           pid;
+} t_sig;
+
+t_sig g_sig;
+
 #endif

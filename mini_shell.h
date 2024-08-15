@@ -8,11 +8,14 @@
 #define BUFFER_SIZE 1024
 
 # include <sys/wait.h>
+#include <stdio.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 
 # include "./include/struct.h"
 # include "./include/libft.h"
+
+t_sig g_sig;
 
 // Function prototypes
 t_env *create_env(char **envp);
@@ -91,14 +94,14 @@ int		ft_check_error(t_token *token);
 void	ft_putstr_fd(char *str, int fd);
 char	*ft_remove_quotes(char *s);
 // int		expanden(t_token **token, char **env);
-int	expanden(t_token **token, t_env *env);
+int	expanding(t_token **token, t_env *env, int exit_status);
 // int	get_token(t_token **token, char	*s);
 int		ft_skipe_spaces(char *s, int index);
 char    *ft_remove_char(char *s, unsigned int index);
 void	ft_lstadd_back(t_token **lst, t_token *new);
 
 // t_arg *parsing(char *line, char **env);
-int	parsing(char *line, t_token	**token, t_env *env);
+int	parsing(char *line, t_token	**token, t_env *env, int exit_status);
 t_arg	*ft_arg_new(int fd);
 void	ft_argadd_back(t_arg **lst, t_arg *new);
 t_arg	*ft_arglast(t_arg	*lst);
@@ -123,5 +126,16 @@ int expand_variable(char **line, t_env *env);
 int write_to_pipe(int pipefd[2], char *line);
 
 int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i);//expending
+
+/*exit_status*/
+
+
+int	ft_expand_exit_status(char **var, int exit_status);
+
+
+/* SIGNALS*/
+void sig_int(int code);
+void sig_init(void);
+void sig_quit(int code);
 
 #endif

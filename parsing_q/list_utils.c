@@ -1,18 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   list_utils.c                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 09:55:02 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/13 09:55:21 by sel-hasn         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../mini_shell.h"
 
-t_type	ft_get_type(char *token)
+t_type ft_get_type(char *token)
 {
 	if (token[0] == '|' && token[1] == '\0')
 		return (PIPE);
@@ -58,7 +46,7 @@ t_token	*ft_list_new(char *token, int z)
 
 	data = malloc(sizeof(t_token));
 	if (!data)
-		return (write(2, "Error\n can't malloc for new_data\n", 34), NULL);
+		return (write(2 , "Error\n can't malloc for new_data\n", 34), NULL);
 	data->content = token;
 	if (z == 1)
 	{

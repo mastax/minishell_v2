@@ -1,6 +1,9 @@
 #ifndef MINI_SHELL_H
 # define MINI_SHELL_H
 
+
+#define MAX_PIPES 100
+#define MAX_COMMANDS 101
 #define MAX_ARGS 100
 #define DELIMITERS " \t\r\n\a"
 #define STDIN_FILENO 0
@@ -14,6 +17,7 @@
 
 # include "./include/struct.h"
 # include "./include/libft.h"
+# include "./include/exe_struct_hlp.h"
 
 t_sig g_sig;
 
@@ -44,6 +48,7 @@ void handle_command(char *command, t_pipeline_state *state);
 int wait_and_cleanup(int *pids, int num_commands, int prev_input, int temp_stdout);
 int handle_pipeline(char **commands, t_env *env);
 
+void    free_argv(char **av);
                     /*UNSET - HELPER FUNCTIONS*/
 
 
@@ -65,12 +70,27 @@ int ft_exports(t_env *env, char **args, int *exit_status);
 int ft_unsets(t_env *env, char **args, int *exit_status);
                     /*THE_EXECUTOR*/
 
-void    free_argv(char **av);
-char    **split_line(char *line);
+int     main_shell_loop(t_env *env);
 int     is_builtin(const char *cmd);
-
-                    /*THE EXECUTOR HELPER*/
 char    **split_line(char *line);
+char    *find_command(char *cmd, char **envp);
+int     execute_external_command(char **argv, char **envp);
+void    restore_io(t_io *io);
+void    save_original_io(t_io *io);
+int setup_pipes(int pipe_count, int pipe_fds[][2]);
+
+// void setup_child_process(child_setup_params *params);
+
+// int fork_and_execute(t_arg *cmd, t_env *env, int *exit_status, int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, pid_t *pid);
+int fork_and_execute(fork_execute_params *params);
+// void setup_child_process(int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, int heredoc_count);
+void setup_child_process(child_setup_params *params);
+void cleanup_parent_process(int *heredoc_fds, int heredoc_count);
+int count_commands(t_arg *cmd);
+int wait_for_children(pid_t *pids, int command_count, int *exit_status);
+void    free_tokens(t_token *tokens);
+void    free_command(t_arg *cmd);
+
 
 /*free the list*/
 // void free_command_list(t_arg *cmd_list);
@@ -87,18 +107,21 @@ int		ft_check_qoutes(char	*line);
 int	ft_skipe_qoute(char	*s, int i);
 int	ft_name_len(char *var, int i);
 int ft_have_sp_tb(char *s);
-int ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token, char *content);
+int	ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token,
+char *content, t_type *prv_type);
 int	get_token(t_token **token, char	*s, int z);
 void free_tokens(t_token *tokens);
 int		ft_check_error(t_token *token);
 void	ft_putstr_fd(char *str, int fd);
 char	*ft_remove_quotes(char *s);
 // int		expanden(t_token **token, char **env);
-int	expanding(t_token **token, t_env *env, int exit_status);
+int	expanding(t_token **token, t_env *env, int exit_status, t_type prv_type);
 // int	get_token(t_token **token, char	*s);
 int		ft_skipe_spaces(char *s, int index);
 char    *ft_remove_char(char *s, unsigned int index);
 void	ft_lstadd_back(t_token **lst, t_token *new);
+int	check_induble(char *s, int i);
+
 
 // t_arg *parsing(char *line, char **env);
 int	parsing(char *line, t_token	**token, t_env *env, int exit_status);

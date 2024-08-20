@@ -6,53 +6,11 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 10:01:40 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/18 18:30:48 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/14 12:04:00 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../mini_shell.h"
-
-int	ft_strncmp(char *s1, const char *s2, size_t n)
-{
-	size_t			i;
-	unsigned char	*str1;
-	unsigned char	*str2;
-
-	str1 = (unsigned char *)s1;
-	str2 = (unsigned char *)s2;
-	i = 0;
-	while (i < n && (str1[i] != '\0' && str2[i] != '\0'))
-	{
-		if (str1[i] != str2[i])
-			return (str1[i] - str2[i]);
-		i++;
-	}
-	return (0);
-}
-
-int	check_induble(char *s, int i)
-{
-	int	j;
-	int	k;
-
-	j = 0;
-	while (s[j] != '\0')
-	{
-		if (s[j] == '"')
-		{
-			k = j;
-			j++;
-			while (s[j] != '\0' && s[j] != '"')
-				j++;
-			if (s[j] == '"' && (k < i && i < j))
-				return (1);
-			j++;
-		}
-		else
-			j++;
-	}
-	return (0);
-}
 
 int	ft_exit_update(char **var, int i, char *exit_str, char *secend_part)
 {
@@ -97,7 +55,7 @@ int	ft_expand_exit_status(char **var, int exit_status)
 			if (!exit_str)
 				return (-1);
 			if (ft_exit_update(var, i, exit_str, &var[0][i + 2]) == -1)
-				return (-1);
+					return (-1);
 		}
 		else
 			i++;

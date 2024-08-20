@@ -2,6 +2,8 @@
 
 int execute_builtin(t_arg *cmd, t_env *env, int *exit_status)
 {
+    if (cmd->arg[0] == NULL)
+        return (0);
     if (strcmp(cmd->arg[0], "cd") == 0)
         return ft_change_dir(cmd->arg, env);
     else if (strcmp(cmd->arg[0], "echo") == 0)

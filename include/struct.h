@@ -7,6 +7,7 @@ typedef struct x_arg
 {
     char  **arg;
     char  **red;
+    int     *heredoc_fds;
     struct x_arg *next;
 } t_arg;
 

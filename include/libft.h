@@ -39,5 +39,6 @@ void	ft_putchar_fd(char c, int fd);
 char    *ft_strtok(char *str, const char *delim);
 char    *ft_strcpy(char *s1, const char *s2);
 char	*ft_itoa(int n);
+char	*ft_concat(char *s1, char *s2);
 
 #endif

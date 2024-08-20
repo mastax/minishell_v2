@@ -6,7 +6,7 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:43:46 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/19 20:12:24 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/14 12:10:12 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,6 @@ int	ft_check_qoutes(char	*line)
 	int	i;
 
 	i = 0;
-	if (!line)
-		return (-1);
 	while (line[i] != '\0')
 	{
 		if (line[i] == '"' || line[i] == '\'')
@@ -103,8 +101,6 @@ int	get_token(t_token **token, char	*s, int z)
 	char	*contant;
 
 	i = 0;
-	if (!s)
-		return (-1);
 	while (s[i] != '\0')
 	{
 		i = ft_skipe_spaces(s, i);

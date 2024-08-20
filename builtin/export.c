@@ -4,14 +4,26 @@ static int handle_existing_var(t_env *env, char *name, char *value, int is_appen
 {
     char *old_value, *new_value;
     
+    if (value == NULL) // If no value provided, don't change the existing value
+        return (1);
+    
     if (is_append)
     {
-        old_value = ft_strchr(env->env_vars[i], '=') + 1;
-        new_value = ft_strjoin(old_value, value);
-        free(env->env_vars[i]);
-        env->env_vars[i] = ft_strjoin(name, "=");
-        env->env_vars[i] = ft_strjoin(env->env_vars[i], new_value);
-        free(new_value);
+        old_value = ft_strchr(env->env_vars[i], '=');
+        if (old_value)
+        {
+            old_value++;
+            new_value = ft_concat(old_value, value);
+            free(env->env_vars[i]);
+            env->env_vars[i] = ft_concat(name, "=");
+            env->env_vars[i] = ft_concat(env->env_vars[i], new_value);
+            free(new_value);
+        }
+        else
+        {
+            free(env->env_vars[i]);
+            env->env_vars[i] = ft_concat(s, value);
+        }
     }
     else
     {
@@ -21,12 +33,33 @@ static int handle_existing_var(t_env *env, char *name, char *value, int is_appen
     return (1);
 }
 
+// static int handle_existing_var(t_env *env, char *name, char *value, int is_append, char *s, int i)
+// {
+//     char *old_value, *new_value;
+    
+//     if (is_append)
+//     {
+//         old_value = ft_strchr(env->env_vars[i], '=') + 1;
+//         new_value = ft_strjoin(old_value, value);
+//         free(env->env_vars[i]);
+//         env->env_vars[i] = ft_strjoin(name, "=");
+//         env->env_vars[i] = ft_strjoin(env->env_vars[i], new_value);
+//         free(new_value);
+//     }
+//     else
+//     {
+//         free(env->env_vars[i]);
+//         env->env_vars[i] = ft_strdup(s);
+//     }
+//     return (1);
+// }
+
 static int find_and_update_var(t_env *env, char *name, char *value, int is_append, char *s)
 {
     for (int i = 0; i < env->count; i++)
     {
         if (ft_strncmp(env->env_vars[i], name, ft_strlen(name)) == 0 && 
-            env->env_vars[i][ft_strlen(name)] == '=')
+            (env->env_vars[i][ft_strlen(name)] == '=' || env->env_vars[i][ft_strlen(name)] == '\0'))
         {
             return (handle_existing_var(env, name, value, is_append, s, i));
         }
@@ -48,8 +81,11 @@ static int parse_export_string(char *s, char **name, char **value, int *is_appen
             *(*value - 2) = '\0';
         }
     }
+    else
+        *value = NULL;
     return (0);
 }
+
 
 int append_new_var(t_env *env, char *s)
 {
@@ -65,10 +101,7 @@ int append_new_var(t_env *env, char *s)
         new_env[i] = env->env_vars[i];
         i++;
     }
-    if (ft_strchr(s, '='))
-        new_env[env->count] = ft_strdup(s);
-    else
-        new_env[env->count] = ft_strdup(s);  // Just duplicate the name for variables without values
+    new_env[env->count] = ft_strdup(s);
     if (!new_env[env->count])
     {
         free(new_env);
@@ -81,33 +114,6 @@ int append_new_var(t_env *env, char *s)
     return (1);
 }
 
-// int append_new_var(t_env *env, char *s)
-// {
-//     char **new_env;
-//     int i;
-
-//     new_env = malloc(sizeof(char*) * (env->count + 2));
-//     if (!new_env)
-//         return (0);
-//     i = 0;
-//     while (i < env->count)
-//     {
-//         new_env[i] = env->env_vars[i];
-//         i++;
-//     }
-//     new_env[env->count] = ft_strdup(s);
-//     if (!new_env[env->count])
-//     {
-//         free(new_env);
-//         return (0);
-//     }
-//     new_env[env->count + 1] = NULL;
-//     free(env->env_vars);
-//     env->env_vars = new_env;
-//     env->count++;
-//     return (1);
-// }
-
 int ft_export(t_env *env, char *s)
 {
     char    *name;
@@ -119,32 +125,56 @@ int ft_export(t_env *env, char *s)
         return (2);
     parse_export_string(s, &name, &value, &is_append);
     
-    if (!value)  // No '=' in the string
+    if (!find_and_update_var(env, name, value, is_append, s))
     {
-        if (!find_and_update_var(env, name, NULL, 0, s))
+        if (!append_new_var(env, s))
         {
-            if (!append_new_var(env, name))  // Pass only the name
-            {
-                free(name);
-                return (0);
-            }
-        }
-    }
-    else
-    {
-        if (!find_and_update_var(env, name, value, is_append, s))
-        {
-            if (!append_new_var(env, s))
-            {
-                free(name);
-                return (0);
-            }
+            free(name);
+            return (0);
         }
     }
     
     free(name);
     return (1);
 }
+
+// int ft_export(t_env *env, char *s)
+// {
+//     char    *name;
+//     char    *value;
+//     int     is_append;
+
+//     is_append = 0;
+//     if (check_format(s))
+//         return (2);
+//     parse_export_string(s, &name, &value, &is_append);
+    
+//     if (!value)  // No '=' in the string
+//     {
+//         if (!find_and_update_var(env, name, NULL, 0, s))
+//         {
+//             if (!append_new_var(env, name))  // Pass only the name
+//             {
+//                 free(name);
+//                 return (0);
+//             }
+//         }
+//     }
+//     else
+//     {
+//         if (!find_and_update_var(env, name, value, is_append, s))
+//         {
+//             if (!append_new_var(env, s))
+//             {
+//                 free(name);
+//                 return (0);
+//             }
+//         }
+//     }
+    
+//     free(name);
+//     return (1);
+// }
 
 // int ft_export(t_env *env, char *s)
 // {

@@ -9,16 +9,14 @@ void sig_int(int code)
         rl_on_new_line();
         rl_replace_line("", 0);
         rl_redisplay();
-        g_sig.exit_status = 1;
     }
     else
     {
         write(STDERR_FILENO, "\n", 1);
-        g_sig.exit_status = 130;
     }
     g_sig.sigint = 1;
-    // Reset the flag immediately
-    g_sig.sigint = 0;
+    g_sig.exit_status = 1;
+    // g_sig.exit_status = 130;
 }
 
 // void sig_int(int code)

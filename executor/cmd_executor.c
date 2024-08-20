@@ -1,67 +1,67 @@
 #include "../mini_shell.h"
 
-static char *get_path_from_env(char **envp)
-{
-    int i;
+// static char *get_path_from_env(char **envp)
+// {
+//     int i;
 
-    i = 0;
-    while (envp[i])
-    {
-        if (ft_strncmp(envp[i], "PATH=", 5) == 0)
-            return (envp[i] + 5);
-        i++;
-    }
-    return (NULL);
-}
+//     i = 0;
+//     while (envp[i])
+//     {
+//         if (ft_strncmp(envp[i], "PATH=", 5) == 0)
+//             return (envp[i] + 5);
+//         i++;
+//     }
+//     return (NULL);
+// }
 
-static char *create_full_path(char *dir, char *cmd)
-{
-    char *full_path;
+// static char *create_full_path(char *dir, char *cmd)
+// {
+//     char *full_path;
 
-    full_path = malloc(ft_strlen(dir) + ft_strlen(cmd) + 2);
-    if (!full_path)
-        return (NULL);
-    ft_strlcpy(full_path, dir, ft_strlen(dir) + 1);
-    ft_strlcat(full_path, "/", ft_strlen(dir) + 2);
-    ft_strlcat(full_path, cmd, ft_strlen(dir) + ft_strlen(cmd) + 2);
-    return (full_path);
-}
+//     full_path = malloc(ft_strlen(dir) + ft_strlen(cmd) + 2);
+//     if (!full_path)
+//         return (NULL);
+//     ft_strlcpy(full_path, dir, ft_strlen(dir) + 1);
+//     ft_strlcat(full_path, "/", ft_strlen(dir) + 2);
+//     ft_strlcat(full_path, cmd, ft_strlen(dir) + ft_strlen(cmd) + 2);
+//     return (full_path);
+// }
 
-static char *search_command_in_path(char *path_copy, char *cmd)
-{
-    char *dir;
-    char *full_path;
+// static char *search_command_in_path(char *path_copy, char *cmd)
+// {
+//     char *dir;
+//     char *full_path;
 
-    dir = ft_strtok(path_copy, ":");
-    while (dir)
-    {
-        full_path = create_full_path(dir, cmd);
-        if (!full_path)
-            return (NULL);
-        if (access(full_path, X_OK) == 0)
-            return (full_path);
-        free(full_path);
-        dir = ft_strtok(NULL, ":");
-    }
-    return (NULL);
-}
+//     dir = ft_strtok(path_copy, ":");
+//     while (dir)
+//     {
+//         full_path = create_full_path(dir, cmd);
+//         if (!full_path)
+//             return (NULL);
+//         if (access(full_path, X_OK) == 0)
+//             return (full_path);
+//         free(full_path);
+//         dir = ft_strtok(NULL, ":");
+//     }
+//     return (NULL);
+// }
 
-static char *find_command(char *cmd, char **envp)
-{
-    char *path;
-    char *path_copy;
-    char *full_path;
+// static char *find_command(char *cmd, char **envp)
+// {
+//     char *path;
+//     char *path_copy;
+//     char *full_path;
 
-    path = get_path_from_env(envp);
-    if (!path)
-        return (NULL);
-    path_copy = ft_strdup(path);
-    if (!path_copy)
-        return (NULL);
-    full_path = search_command_in_path(path_copy, cmd);
-    free(path_copy);
-    return (full_path);
-}
+//     path = get_path_from_env(envp);
+//     if (!path)
+//         return (NULL);
+//     path_copy = ft_strdup(path);
+//     if (!path_copy)
+//         return (NULL);
+//     full_path = search_command_in_path(path_copy, cmd);
+//     free(path_copy);
+//     return (full_path);
+// }
 //=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 // static char *find_command(char *cmd, char **envp)
@@ -174,85 +174,85 @@ static char *find_command(char *cmd, char **envp)
 //=-=-=-=-=-=-==-=--=-=-=-=-=-=-=-=-=---
 
 
-static char *get_command_path(char **argv, char **envp)
-{
-    char *cmd_path;
+// static char *get_command_path(char **argv, char **envp)
+// {
+//     char *cmd_path;
 
-    if (!argv[0] || argv[0][0] == '\0')
-        return NULL;
-    if (access(argv[0], X_OK) == 0)
-        return (argv[0]);
-    cmd_path = find_command(argv[0], envp);
-    if (!cmd_path)
-    {
-        ft_putstr_fd(argv[0], 2);
-        ft_putstr_fd(": command not found\n", 2);
-    }
-    return (cmd_path);
-}
+//     if (!argv[0] || argv[0][0] == '\0')
+//         return NULL;
+//     if (access(argv[0], X_OK) == 0)
+//         return (argv[0]);
+//     cmd_path = find_command(argv[0], envp);
+//     if (!cmd_path)
+//     {
+//         ft_putstr_fd(argv[0], 2);
+//         ft_putstr_fd(": command not found\n", 2);
+//     }
+//     return (cmd_path);
+// }
 
-static int execute_child_process(char *cmd_path, char **argv, char **envp)
-{
-    if (execve(cmd_path, argv, envp) == -1)
-    {
-        perror("execve");
-        exit(1);
-    }
-    return (0);
-}
+// static int execute_child_process(char *cmd_path, char **argv, char **envp)
+// {
+//     if (execve(cmd_path, argv, envp) == -1)
+//     {
+//         perror("execve");
+//         exit(1);
+//     }
+//     return (0);
+// }
 
-static int handle_parent_process(pid_t pid)
-{
-    int status;
+// static int handle_parent_process(pid_t pid)
+// {
+//     int status;
 
-    if (waitpid(pid, &status, 0) == -1)
-    {
-        perror("waitpid");
-        return (1);
-    }
-    if (WIFEXITED(status))
-        return (WEXITSTATUS(status));
-    else if (WIFSIGNALED(status))
-        return (128 + WTERMSIG(status));
-    return (0);
-}
+//     if (waitpid(pid, &status, 0) == -1)
+//     {
+//         perror("waitpid");
+//         return (1);
+//     }
+//     if (WIFEXITED(status))
+//         return (WEXITSTATUS(status));
+//     else if (WIFSIGNALED(status))
+//         return (128 + WTERMSIG(status));
+//     return (0);
+// }
 
-int execute_external_command(char **argv, char **envp)
-{
-    pid_t pid;
-    char *cmd_path;
-    int status = 0;
+// int execute_external_command(char **argv, char **envp)
+// {
+//     pid_t pid;
+//     char *cmd_path;
+//     int status = 0;
 
-    // Check if the command is an empty string
-    if (argv[0] == NULL || argv[0][0] == '\0')
-    {
-        ft_putstr_fd(": command not found\n", 2);
-        return (127);  // Command not found
-    }
-    cmd_path = get_command_path(argv, envp);
-    if (!cmd_path)
-        return (127);  // Command not found
-    pid = fork();
-    if (pid == -1)
-    {
-        perror("fork");
-        return (1);
-    }
-    else if (pid == 0)
-    {
-        if (execute_child_process(cmd_path, argv, envp) == -1)
-        {
-            perror("execve");
-            exit(1);
-        }
-    }
-        //status = execute_child_process(cmd_path, argv, envp);
-    else
-        status = handle_parent_process(pid);
-    if (cmd_path != argv[0])
-        free(cmd_path);
-    return (status);
-}
+//     // Check if the command is an empty string
+//     if (argv[0] == NULL || argv[0][0] == '\0')
+//     {
+//         ft_putstr_fd(": command not found\n", 2);
+//         return (127);  // Command not found
+//     }
+//     cmd_path = get_command_path(argv, envp);
+//     if (!cmd_path)
+//         return (127);  // Command not found
+//     pid = fork();
+//     if (pid == -1)
+//     {
+//         perror("fork");
+//         return (1);
+//     }
+//     else if (pid == 0)
+//     {
+//         if (execute_child_process(cmd_path, argv, envp) == -1)
+//         {
+//             perror("execve");
+//             exit(1);
+//         }
+//     }
+//         //status = execute_child_process(cmd_path, argv, envp);
+//     else
+//         status = handle_parent_process(pid);
+//     if (cmd_path != argv[0])
+//         free(cmd_path);
+//     return (status);
+// }
 
 // int execute_external_command(char **argv, char **envp)
 // {
@@ -306,51 +306,51 @@ int execute_external_command(char **argv, char **envp)
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 
-void save_original_io(t_io *io)
-{
-    io->original_stdin = dup(STDIN_FILENO);
-    io->original_stdout = dup(STDOUT_FILENO);
-}
+// void save_original_io(t_io *io)
+// {
+//     io->original_stdin = dup(STDIN_FILENO);
+//     io->original_stdout = dup(STDOUT_FILENO);
+// }
 
-void restore_io(t_io *io)
-{
-    dup2(io->original_stdin, STDIN_FILENO);
-    dup2(io->original_stdout, STDOUT_FILENO);
-    close(io->original_stdin);
-    close(io->original_stdout);
-}
+// void restore_io(t_io *io)
+// {
+//     dup2(io->original_stdin, STDIN_FILENO);
+//     dup2(io->original_stdout, STDOUT_FILENO);
+//     close(io->original_stdin);
+//     close(io->original_stdout);
+// }
 
-void free_command(t_arg *cmd)
-{
-    if (!cmd)
-        return;
+// void free_command(t_arg *cmd)
+// {
+//     if (!cmd)
+//         return;
 
-    // Free arguments
-    for (int i = 0; cmd->arg && cmd->arg[i]; i++)
-        free(cmd->arg[i]);
-    free(cmd->arg);
+//     // Free arguments
+//     for (int i = 0; cmd->arg && cmd->arg[i]; i++)
+//         free(cmd->arg[i]);
+//     free(cmd->arg);
 
-    // Free redirections
-    for (int i = 0; cmd->red && cmd->red[i]; i++)
-        free(cmd->red[i]);
-    free(cmd->red);
+//     // Free redirections
+//     for (int i = 0; cmd->red && cmd->red[i]; i++)
+//         free(cmd->red[i]);
+//     free(cmd->red);
 
-    // Free the command structure itself
-    free(cmd);
-}
+//     // Free the command structure itself
+//     free(cmd);
+// }
 
-void free_tokens(t_token *tokens)
-{
-    t_token *tmp;
+// void free_tokens(t_token *tokens)
+// {
+//     t_token *tmp;
 
-    while (tokens)
-    {
-        tmp = tokens;
-        tokens = tokens->next;
-        free(tmp->content);
-        free(tmp);
-    }
-}
+//     while (tokens)
+//     {
+//         tmp = tokens;
+//         tokens = tokens->next;
+//         free(tmp->content);
+//         free(tmp);
+//     }
+// }
 
 // void free_env(t_env *env)
 // {
@@ -366,92 +366,92 @@ void free_tokens(t_token *tokens)
 
 //=-=-=-=-=-=-=-=-=-==-=--=
 
-static int handle_input(char *input, t_env *env)
-{
-    (void)env;
-    if (!input)
-    {
-        ft_putstr_fd("\nExiting shell.\n", 1);
-        return (1);
-    }
-    if (*input)
-        add_history(input);
-    return (0);
-}
+// static int handle_input(char *input, t_env *env)
+// {
+//     (void)env;
+//     if (!input)
+//     {
+//         ft_putstr_fd("\nExiting shell.\n", 1);
+//         return (1);
+//     }
+//     if (*input)
+//         add_history(input);
+//     return (0);
+// }
 
-static int process_command(t_token *tokens, t_env *env, int *exit_status)
-{
-    t_arg *cmd;
-    int result;
+// static int process_command(t_token *tokens, t_env *env, int *exit_status)
+// {
+//     t_arg *cmd;
+//     int result;
 
-    cmd = ft_arg_new(2);
-    if (!cmd)
-        return (0);
-    if (ft_convert_token_to_arg(tokens, cmd, 0) == 0)
-    {
-        result = execute_command(cmd, env, exit_status);
-        free_command(cmd);
-        return result;  // Return the result from execute_command
-    }
-    free_command(cmd);
-    return (0);
-}
+//     cmd = ft_arg_new(2);
+//     if (!cmd)
+//         return (0);
+//     if (ft_convert_token_to_arg(tokens, cmd, 0) == 0)
+//     {
+//         result = execute_command(cmd, env, exit_status);
+//         free_command(cmd);
+//         return result;  // Return the result from execute_command
+//     }
+//     free_command(cmd);
+//     return (0);
+// }
 
-static void cleanup(t_token *tokens)
-{
-    free_tokens(tokens);
-}
+// static void cleanup(t_token *tokens)
+// {
+//     free_tokens(tokens);
+// }
 
-int main_shell_loop(t_env *env)
-{
-    char *input;
-    t_token *tokens;
-    int exit_status;
+// int main_shell_loop(t_env *env)
+// {
+//     char *input;
+//     t_token *tokens;
+//     int exit_status;
 
-    exit_status = 0;
-    sig_init();
+//     exit_status = 0;
+//     sig_init();
 
-    while (1)
-    {
-        tokens = NULL;
-        g_sig.pid = 0;  // Reset pid before each command
-        signal(SIGINT, sig_int);
-        signal(SIGQUIT, sig_quit);
+//     while (1)
+//     {
+//         tokens = NULL;
+//         g_sig.pid = 0;  // Reset pid before each command
+//         signal(SIGINT, sig_int);
+//         signal(SIGQUIT, sig_quit);
 
-        input = readline("minishell> ");
+//         input = readline("minishell> ");
 
-        if (input == NULL)
-        {
-            write(STDERR_FILENO, "exit\n", 6);
-            break;
-        //     return (exit_status);
-        }
+//         if (input == NULL)
+//         {
+//             write(STDERR_FILENO, "exit\n", 6);
+//             break;
+//         //     return (exit_status);
+//         }
 
-        if (handle_input(input, env))
-            return (exit_status);
+//         if (handle_input(input, env))
+//             return (exit_status);
 
-        int parse_result = parsing(input, &tokens, env, exit_status);
-        if (parse_result == 0)
-        {
-            if (process_command(tokens, env, &exit_status) == -1)
-            {
-                cleanup(tokens);
-                return (exit_status);
-            }
-            cleanup(tokens);
-            tokens = NULL;
-        }
-          else if (parse_result == -1)
-        {
-            cleanup(tokens);
-            g_sig.exit_status = 2;
-            continue;
-        }
+//         int parse_result = parsing(input, &tokens, env, exit_status);
+//         if (parse_result == 0)
+//         {
+//             if (process_command(tokens, env, &exit_status) == -1)
+//             {
+//                 free_tokens(tokens);
+//                 return (exit_status);
+//             }
+//             free_tokens(tokens);
+//             tokens = NULL;
+//         }
+//           else if (parse_result == -1)
+//         {
+//             free_tokens(tokens);
+//             g_sig.exit_status = 2;
+//             continue;
+//         }
 
-        exit_status = g_sig.exit_status;
-    }
-    return (exit_status);
-}
+//         exit_status = g_sig.exit_status;
+//     }
+//     return (exit_status);
+// }
 
 // int main_shell_loop(t_env *env)//last
 // {
@@ -657,191 +657,192 @@ int main_shell_loop(t_env *env)
 //     return exit_status;
 // }
 
-#define MAX_PIPES 100
-#define MAX_COMMANDS 101
+// #define MAX_PIPES 100
+// #define MAX_COMMANDS 101
 
-int count_commands(t_arg *cmd)
-{
-    int count = 0;
-    while (cmd)
-    {
-        count++;
-        cmd = cmd->next;
-    }
-    return count;
-}
 
 //=-=-=-=-=-
 
-static int setup_pipes(int pipe_count, int pipe_fds[][2]) {
-    for (int i = 0; i < pipe_count; i++) {
-        if (pipe(pipe_fds[i]) == -1) {
-            perror("pipe");
-            return 1;
-        }
-    }
-    return 0;
-}
+// int setup_pipes(int pipe_count, int pipe_fds[][2]) {
+//     for (int i = 0; i < pipe_count; i++) {
+//         if (pipe(pipe_fds[i]) == -1) {
+//             perror("pipe");
+//             return 1;
+//         }
+//     }
+//     return 0;
+// }
 
-static void setup_child_process(int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, int heredoc_count) {
-    if (cmd_index > 0) {
-        dup2(pipe_fds[cmd_index - 1][0], STDIN_FILENO);
-    }
-    if (cmd_index < pipe_count) {
-        dup2(pipe_fds[cmd_index][1], STDOUT_FILENO);
-    }
+// static void setup_child_process(int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, int heredoc_count) {
+//     if (cmd_index > 0) {
+//         dup2(pipe_fds[cmd_index - 1][0], STDIN_FILENO);
+//     }
+//     if (cmd_index < pipe_count) {
+//         dup2(pipe_fds[cmd_index][1], STDOUT_FILENO);
+//     }
 
-    for (int i = 0; i < pipe_count; i++) {
-        close(pipe_fds[i][0]);
-        close(pipe_fds[i][1]);
-    }
+//     for (int i = 0; i < pipe_count; i++) {
+//         close(pipe_fds[i][0]);
+//         close(pipe_fds[i][1]);
+//     }
 
-    if (heredoc_fds) {
-        dup2(heredoc_fds[heredoc_count - 1], STDIN_FILENO);
-        for (int i = 0; i < heredoc_count; i++)
-            close(heredoc_fds[i]);
-        free(heredoc_fds);
-    }
-}
+//     if (heredoc_fds) {
+//         dup2(heredoc_fds[heredoc_count - 1], STDIN_FILENO);
+//         for (int i = 0; i < heredoc_count; i++)
+//             close(heredoc_fds[i]);
+//         free(heredoc_fds);
+//     }
+// }
 
-static void cleanup_parent_process(int *heredoc_fds, int heredoc_count) {
-    if (heredoc_fds) {
-        for (int i = 0; i < heredoc_count; i++)
-            close(heredoc_fds[i]);
-        free(heredoc_fds);
-    }
-}
+// static void cleanup_parent_process(int *heredoc_fds, int heredoc_count) {
+//     if (heredoc_fds) {
+//         for (int i = 0; i < heredoc_count; i++)
+//             close(heredoc_fds[i]);
+//         free(heredoc_fds);
+//     }
+// }
 
-static int wait_for_children(pid_t *pids, int command_count, int *exit_status) {
-    for (int i = 0; i < command_count; i++) {
-        int status;
-        waitpid(pids[i], &status, 0);
-        if (i == command_count - 1) {
-            *exit_status = WEXITSTATUS(status);
-            g_sig.exit_status = *exit_status;
-        }
-    }
-    return *exit_status;
-}
+// static int wait_for_children(pid_t *pids, int command_count, int *exit_status) {
+//     for (int i = 0; i < command_count; i++) {
+//         int status;
+//         waitpid(pids[i], &status, 0);
+//         if (i == command_count - 1) {
+//             *exit_status = WEXITSTATUS(status);
+//             g_sig.exit_status = *exit_status;
+//         }
+//     }
+//     return *exit_status;
+// }
 
 
 //=-=-=-==-=-
 
-static int setup_execution(t_arg *cmd, int *command_count, int *pipe_count, int pipe_fds[][2], t_io *io) {
-    *command_count = count_commands(cmd);
-    *pipe_count = *command_count - 1;
+// int count_commands(t_arg *cmd)
+// {
+//     int count = 0;
+//     while (cmd)
+//     {
+//         count++;
+//         cmd = cmd->next;
+//     }
+//     return count;
+// }
 
-    save_original_io(io);
+// static int setup_execution(t_arg *cmd, int *command_count, int *pipe_count, int pipe_fds[][2], t_io *io) {
+//     *command_count = count_commands(cmd);
+//     *pipe_count = *command_count - 1;
 
-    if (setup_pipes(*pipe_count, pipe_fds) != 0) {
-        restore_io(io);
-        return 1;
-    }
-    return 0;
-}
+//     save_original_io(io);
 
-static int fork_and_execute(t_arg *cmd, t_env *env, int *exit_status, int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, pid_t *pid) {
-    *pid = fork();
-    if (*pid == -1) {
-        perror("fork");
-        return 1;
-    } else if (*pid == 0) { // Child process
-        setup_child_process(cmd_index, pipe_count, pipe_fds, heredoc_fds, count_heredocs(cmd->red));
+//     if (setup_pipes(*pipe_count, pipe_fds) != 0) {
+//         restore_io(io);
+//         return 1;
+//     }
+//     return 0;
+// }
 
-        if (apply_redirections(cmd->red) == -1)
-            exit(1);
+// static int fork_and_execute(t_arg *cmd, t_env *env, int *exit_status, int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, pid_t *pid) {
+//     *pid = fork();
+//     if (*pid == -1) {
+//         perror("fork");
+//         return 1;
+//     } else if (*pid == 0) { // Child process
+//         setup_child_process(cmd_index, pipe_count, pipe_fds, heredoc_fds, count_heredocs(cmd->red));
 
-        if (is_builtin(cmd->arg[0])) {
-            exit(execute_builtin(cmd, env, exit_status));
-        } else {
-            exit(execute_external_command(cmd->arg, env->env_vars));
-        }
-    }
-    return 0;
-}
+//         if (apply_redirections(cmd->red) == -1)
+//             exit(1);
 
-static void cleanup_pipes(int pipe_count, int pipe_fds[][2]) {
-    for (int i = 0; i < pipe_count; i++) {
-        close(pipe_fds[i][0]);
-        close(pipe_fds[i][1]);
-    }
-}
+//         if (is_builtin(cmd->arg[0])) {
+//             exit(execute_builtin(cmd, env, exit_status));
+//         } else {
+//             exit(execute_external_command(cmd->arg, env->env_vars));
+//         }
+//     }
+//     return 0;
+// }
+
+// static void cleanup_pipes(int pipe_count, int pipe_fds[][2]) {
+//     for (int i = 0; i < pipe_count; i++) {
+//         close(pipe_fds[i][0]);
+//         close(pipe_fds[i][1]);
+//     }
+// }
 //=-=-=-=-
 
-static int setup_and_check_heredoc(t_arg *cmd, t_env *env, t_io *io, int *heredoc_count, int **heredoc_fds, int command_count)
-{
-    (void)(command_count);
-    *heredoc_count = count_heredocs(cmd->red);
-    *heredoc_fds = NULL;
-    if (*heredoc_count > 0)
-    {
-        *heredoc_fds = handle_heredocs(cmd->red, *heredoc_count, env);
-        if (!*heredoc_fds)
-        {
-            restore_io(io);
-            return 1;
-        }
-    }
-    return 0;
-}
+// static int setup_and_check_heredoc(t_arg *cmd, t_env *env, t_io *io, int *heredoc_count, int **heredoc_fds, int command_count)
+// {
+//     (void)(command_count);
+//     *heredoc_count = count_heredocs(cmd->red);
+//     *heredoc_fds = NULL;
+//     if (*heredoc_count > 0)
+//     {
+//         *heredoc_fds = handle_heredocs(cmd->red, *heredoc_count, env);
+//         if (!*heredoc_fds)
+//         {
+//             restore_io(io);
+//             return 1;
+//         }
+//     }
+//     return 0;
+// }
 
-static int execute_commands_loop(t_arg *cmd, t_env *env, int *exit_status, int command_count, int pipe_count, int pipe_fds[][2], pid_t *pids, t_io *io)
-{
-    (void)command_count;
-    int cmd_index = 0;
-    while (cmd)
-    {
-        int heredoc_count;
-        int *heredoc_fds;
-        int setup_result = setup_and_check_heredoc(cmd, env, io, &heredoc_count, &heredoc_fds, command_count);
-        if (setup_result != 0)
-            return setup_result;
+// static int execute_commands_loop(t_arg *cmd, t_env *env, int *exit_status, int command_count, int pipe_count, int pipe_fds[][2], pid_t *pids, t_io *io)
+// {
+//     (void)command_count;
+//     int cmd_index = 0;
+//     while (cmd)
+//     {
+//         int heredoc_count;
+//         int *heredoc_fds;
+//         int setup_result = setup_and_check_heredoc(cmd, env, io, &heredoc_count, &heredoc_fds, command_count);
+//         if (setup_result != 0)
+//             return setup_result;
 
-        if (fork_and_execute(cmd, env, exit_status, cmd_index, pipe_count, pipe_fds, heredoc_fds, &pids[cmd_index]) != 0)
-        {
-            restore_io(io);
-            return 1;
-        }
+//         if (fork_and_execute(cmd, env, exit_status, cmd_index, pipe_count, pipe_fds, heredoc_fds, &pids[cmd_index]) != 0)
+//         {
+//             restore_io(io);
+//             return 1;
+//         }
 
-        cleanup_parent_process(heredoc_fds, heredoc_count);
-        cmd = cmd->next;
-        cmd_index++;
-    }
-    return 0;
-}
+//         cleanup_parent_process(heredoc_fds, heredoc_count);
+//         cmd = cmd->next;
+//         cmd_index++;
+//     }
+//     return 0;
+// }
 
-int execute_command(t_arg *cmd, t_env *env, int *exit_status)
-{
-    t_io io;
-    int command_count, pipe_count;
-    int pipe_fds[MAX_PIPES][2];
-    pid_t pids[MAX_COMMANDS];
+// int execute_command(t_arg *cmd, t_env *env, int *exit_status)
+// {
+//     t_io io;
+//     int command_count, pipe_count;
+//     int pipe_fds[MAX_PIPES][2];
+//     pid_t pids[MAX_COMMANDS];
 
-    if (setup_execution(cmd, &command_count, &pipe_count, pipe_fds, &io) != 0)
-        return 1;
+//     if (setup_execution(cmd, &command_count, &pipe_count, pipe_fds, &io) != 0)
+//         return 1;
 
-    // Add this check for single builtin command
-    if (command_count == 1 && is_builtin(cmd->arg[0]))
-    {
-        if (apply_redirections(cmd->red) == -1)
-        {
-        restore_io(&io);
-        return 1;
-        }
-        int result = execute_builtin(cmd, env, exit_status);
-        restore_io(&io);
-        return result;
-    }
+//     // Add this check for single builtin command
+//     if (command_count == 1 && is_builtin(cmd->arg[0]))
+//     {
+//         if (apply_redirections(cmd->red) == -1)
+//         {
+//         restore_io(&io);
+//         return 1;
+//         }
+//         int result = execute_builtin(cmd, env, exit_status);
+//         restore_io(&io);
+//         return result;
+//     }
 
-    int result = execute_commands_loop(cmd, env, exit_status, command_count, pipe_count, pipe_fds, pids, &io);
-    if (result != 0)
-        return result;
+//     int result = execute_commands_loop(cmd, env, exit_status, command_count, pipe_count, pipe_fds, pids, &io);
+//     if (result != 0)
+//         return result;
 
-    cleanup_pipes(pipe_count, pipe_fds);
-    result = wait_for_children(pids, command_count, exit_status);
-    restore_io(&io);
-    return result;
-}
+//     cleanup_pipes(pipe_count, pipe_fds);
+//     result = wait_for_children(pids, command_count, exit_status);
+//     restore_io(&io);
+//     return result;
+// }
 
 // =-=-=-=-
 // int execute_command(t_arg *cmd, t_env *env, int *exit_status) {
@@ -2091,28 +2092,28 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status)
 // }
 // t_sig g_sig;
 
-int main(int argc, char **argv, char **envp)
-{
-    rl_catch_signals = 0;
-    (void)argc;
-    (void)argv;
+// int main(int argc, char **argv, char **envp)
+// {
+//     rl_catch_signals = 0;
+//     (void)argc;
+//     (void)argv;
 
-    t_io io;
-    save_original_io(&io);
+//     t_io io;
+//     save_original_io(&io);
 
-    t_env *env = create_env(envp);
-    if (!env)
-    {
-        fprintf(stderr, "Failed to create environment\n");
-        return 1;
-    }
+//     t_env *env = create_env(envp);
+//     if (!env)
+//     {
+//         fprintf(stderr, "Failed to create environment\n");
+//         return 1;
+//     }
 
-    int status = main_shell_loop(env);
+//     int status = main_shell_loop(env);
 
-    //free_env(env);
-    restore_io(&io);
-    return status;
-}
+//     //free_env(env);
+//     restore_io(&io);
+//     return status;
+// }
 // #include <string.h>
 // #include <stdlib.h>
 // #include <stdio.h>

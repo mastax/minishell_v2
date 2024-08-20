@@ -7,9 +7,14 @@ SRC = builtin/cd.c \
       builtin/export.c \
       builtin/pwd.c \
       builtin/unset.c \
-      executor/builtin_executer.c \
-      executor/cmd_executor.c \
+      builtin/builtin_executer.c \
       executor/cmd_executer_utils.c \
+      executor/exe_external_cmd.c \
+      executor/execute_command_utils.c \
+      executor/execute_command.c \
+      executor/find_command.c \
+      executor/main_loop.c \
+      executor/main.c \
       libft/libft_utils.c \
       libft/libft_utils1.c \
       libft/libft_utils2.c \
@@ -40,7 +45,7 @@ SRC = builtin/cd.c \
 	  mini_shell.c
 OBJ = $(SRC:.c=.o)
 RM = rm -f
-FLAGC = -Wall -Wextra -Werror #-g -fsanitize=address
+FLAGC = -Wall -Wextra -Werror -g -fsanitize=address
 LDFLAGS = -lreadline
 HEADER = mini_shell.h
 READLINEDIR = $(shell brew --prefix readline)

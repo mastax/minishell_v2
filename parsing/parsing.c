@@ -6,11 +6,25 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:54:16 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/14 11:53:03 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/19 20:13:42 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../mini_shell.h"
+
+// char *ft_add_char(char *s, unsigned int index, char to_add)
+// {
+//     size_t len = strlen(s);
+//     char *new_str = malloc(len + 2); // +1 for new char, +1 for null terminator
+//     if (!new_str) return NULL;
+
+//     strncpy(new_str, s, index);
+//     new_str[index] = to_add;
+//     strcpy(new_str + index + 1, s + index);
+
+//     free(s);
+//     return new_str;
+// }
 
 char	*ft_add_char(char *s, unsigned int index, char to_add)
 {
@@ -41,24 +55,52 @@ char	*ft_add_char(char *s, unsigned int index, char to_add)
 	return (str);
 }
 
-char	*ft_handl_appand_herdoc(char *line, int i)
+char *ft_handl_appand_herdoc(char *line, int i)
 {
-	if ((line[i - 1] != ' ' && line[i - 1] != '\t')
-		&& (line[i + 2] != ' ' && line[i + 2] != '\t'))
-	{
-		line = ft_add_char(line, i, ' ');
-		line = ft_add_char(line, i + 3, ' ');
-	}
-	else if (line[i - 1] != ' ' && line[i - 1] != '\t')
-	{
-		line = ft_add_char(line, i, ' ');
-	}
-	else if (line[i + 2] != ' ' && line[i + 2] != '\t')
-	{
-		line = ft_add_char(line, i + 2, ' ');
-	}
-	return (line);
+    int len = strlen(line);
+
+    // Check if we have enough characters to perform the operation
+    if (i > 0 && i + 1 < len) {
+        if ((line[i - 1] != ' ' && line[i - 1] != '\t') &&
+            (line[i + 2] < len && line[i + 2] != ' ' && line[i + 2] != '\t'))
+        {
+            line = ft_add_char(line, i, ' ');
+            if (!line) return NULL;
+            line = ft_add_char(line, i + 3, ' ');
+            if (!line) return NULL;
+        }
+        else if (line[i - 1] != ' ' && line[i - 1] != '\t')
+        {
+            line = ft_add_char(line, i, ' ');
+            if (!line) return NULL;
+        }
+        else if (i + 2 < len && line[i + 2] != ' ' && line[i + 2] != '\t')
+        {
+            line = ft_add_char(line, i + 2, ' ');
+            if (!line) return NULL;
+        }
+    }
+    return line;
 }
+
+// char	*ft_handl_appand_herdoc(char *line, int i)
+// {
+// 	if ((line[i - 1] != ' ' && line[i - 1] != '\t')
+// 		&& (line[i + 2] != ' ' && line[i + 2] != '\t'))
+// 	{
+// 		line = ft_add_char(line, i, ' ');
+// 		line = ft_add_char(line, i + 3, ' ');
+// 	}
+// 	else if (line[i - 1] != ' ' && line[i - 1] != '\t')
+// 	{
+// 		line = ft_add_char(line, i, ' ');
+// 	}
+// 	else if (line[i + 2] != ' ' && line[i + 2] != '\t')
+// 	{
+// 		line = ft_add_char(line, i + 2, ' ');
+// 	}
+// 	return (line);
+// }
 
 char	*ft_handl_spc_opr(char *line, int i)
 {
@@ -78,6 +120,30 @@ char	*ft_handl_spc_opr(char *line, int i)
 	}
 	return (line);
 }
+
+// char *ft_add_space(char *line)
+// {
+//     int i = 0;
+//     while (line && line[i])
+//     {
+//         if (line[i] == '"' || line[i] == '\'')
+//             i = ft_skipe_qoute(line, i) - 1;
+//         else if ((line[i] == '>' && line[i + 1] == '>') || (line[i] == '<' && line[i + 1] == '<'))
+//         {
+//             line = ft_handl_appand_herdoc(line, i);
+//             if (!line) return NULL;
+//             i += 2;
+//         }
+//         else if (is_spc_opr(line[i]) == 1)
+//         {
+//             line = ft_handl_spc_opr(line, i);
+//             if (!line) return NULL;
+//             i++;
+//         }
+//         i++;
+//     }
+//     return line;
+// }
 
 char	*ft_add_space(char *line)
 {
@@ -137,12 +203,13 @@ int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
 	if (get_token(token, line, 1) == -1)
 		return (-1);
 	if (*token == NULL)
+		return (0);
+	if (expanding(token, env, exit_status, WORD) == -1)
 		return (-1);
-	if (expanding(token, env, exit_status) == -1)
-		return (-1);
-	tmp = *token;
 	if ((*token)->content[ft_skipe_spaces((*token)->content, 0)] == '\0')
-		return (free_tokens(*token), free(line), -1);
+		*token = (*token)->next;
+		// return (free(line), 0);
+	tmp = *token;
 	while (tmp)
 	{
 		if (tmp->qout_rm == true)
@@ -150,8 +217,5 @@ int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
 		printf("2!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
 		tmp = tmp->next;
 	}
-	if (ft_check_error(*token) == 1)
-		return (-1);
-	free(line);
-	return (0);
+	return (free(line), ft_check_error(*token));
 }

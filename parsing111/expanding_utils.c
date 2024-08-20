@@ -6,7 +6,7 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 10:00:52 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/19 20:00:03 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/13 10:01:34 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,23 +60,13 @@ t_token	*list_befor_last(t_token *list)
 	return (tmp);
 }
 
-void	ambiguous_error(char *arg)
-{
-	ft_putstr_fd("minishell: ", 2);
-	ft_putstr_fd(arg, 2);
-	ft_putstr_fd(": ambiguous redirect\n", 2);
-}
-
 int	ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token,
-char *content, t_type *prv_type)
+char *content)
 {
 	t_token	*new_tokens;
 	t_token	*tmp;
 
 	new_tokens = NULL;
-	if (*prv_type == APPEND || *prv_type == RED_IN || *prv_type == RED_OUT)
-		return (ambiguous_error(now->content), -1);
-	*prv_type = WORD;
 	if (get_token(&new_tokens, content, 2) == -1)
 		return (-1);
 	tmp = *token;

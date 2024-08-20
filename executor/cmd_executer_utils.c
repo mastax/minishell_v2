@@ -45,48 +45,13 @@ void free_argv(char **av)
     free(av);
 }
 
-// char **split_line(char *line)
-// {
-//     int bufsize = MAX_ARGS;
-//     int position = 0;
-//     char **tokens = malloc(bufsize * sizeof(char*));
-//     char *token;
-
-//     if (!tokens)
-//     {
-//         perror("malloc");
-//         exit(EXIT_FAILURE);
-//     }
-
-//     token = ft_strtok(line, DELIMITERS);
-//     while (token != NULL)
-//     {
-//         tokens[position] = ft_strdup(token);
-//         position++;
-
-//         if (position >= bufsize)
-//         {
-//             bufsize += MAX_ARGS;
-//             tokens = realloc(tokens, bufsize * sizeof(char*));
-//             if (!tokens)
-//             {
-//                 perror("realloc");
-//                 exit(EXIT_FAILURE);
-//             }
-//         }
-
-//         token = ft_strtok(NULL, DELIMITERS);
-//     }
-//     tokens[position] = NULL;
-//     return tokens;
-// }
-
 int is_builtin(const char *cmd)
 {
     const char *builtins[] = {
         "echo", "cd", "pwd", "export", "unset", "env", "exit", NULL
     };
-
+    if (cmd == NULL)
+        return (0);
     for (int i = 0; builtins[i]; i++)
     {
         if (ft_strcmp(cmd, builtins[i]) == 0)
@@ -101,7 +66,9 @@ int count_heredocs(char **red)
 {
     int count = 0;
     int i = 0;
-    while (red && red[i])
+    if (!red || !(*red))
+        return (0);
+    while (red[i] != NULL)
     {
         if (ft_strcmp(red[i], "<<") == 0)
             count++;

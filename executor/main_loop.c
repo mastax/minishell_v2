@@ -91,7 +91,7 @@ int main_shell_loop(t_env *env)
         int parse_result = parsing(input, &tokens, env, exit_status);
         if (parse_result == 0)
         {
-            if (process_command(tokens, env, &exit_status) == -1)
+            if (process_command(tokens, env, &g_sig.exit_status) == -1)
             {
                 free_tokens(tokens);
                 return (exit_status);

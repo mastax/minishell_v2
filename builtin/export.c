@@ -121,7 +121,7 @@ int ft_export(t_env *env, char *s)
     int     is_append;
 
     is_append = 0;
-    if (check_format(s))
+    if (check_format(s) == 1)
         return (2);
     parse_export_string(s, &name, &value, &is_append);
     
@@ -206,19 +206,23 @@ int ft_exports(t_env *env, char **args, int *exit_status)
     int command_return;
 
     *exit_status = 0;
-    if (!args[1])
+    if (!args[1] || (args[1][0] == '\0' && !args[2]))
     {
         print_sorted_env(env);
         return (1);
     }
 
     i = 1;
+    if (args[1][0] == '\0')
+        i = 2;
     while (args[i]) {
         command_return = ft_export(env, args[i]);
         if (command_return == 0)
             return (0);
         else if (command_return == 2)
+        {
             *exit_status = 1;
+        }
         i++;
     }
     return (1);

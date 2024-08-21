@@ -6,7 +6,16 @@ int check_format(char *arg)
     int has_equal;
 
     if (!ft_isalpha(arg[0]) && arg[0] != '_')
-         return (print_error(1, &arg[0]));
+        return (print_error(1, arg), 1);
+    cur = 0;
+    while (arg[cur] != '\0')
+    {
+        if (arg[cur] == '=')
+            break ;
+        if (arg[cur] == '-')
+            return (print_error(1, arg), 1);
+        cur++;
+    }
     cur = 0;
     has_equal = 0;
     while (arg[cur])
@@ -15,8 +24,7 @@ int check_format(char *arg)
             has_equal = 1;
         else if (arg[cur] == '+' && arg[cur+1] == '=')
             has_equal = 1;
-        else if (!ft_isalnum(arg[cur]) && arg[cur] != '_')
-            return (print_error(2, &arg[cur]));
+        
         cur++;
     }
     return (0);  // Return 0 (success) regardless of whether there's an equals sign
@@ -50,9 +58,7 @@ int check_format(char *arg)
 int print_error(int error_code, char *content)
 {
     if (error_code == 1) {
-        printf("%s '%c", "export: not a valid identifier", *content);
-    } else if (error_code == 2) {
-        printf("\033[91m%s '%c'\033[0m\n", "export: not valid in this context:", *content);
+        printf("export: `%s': not a valid identifier\n", content);
     }
     return (1);
 }

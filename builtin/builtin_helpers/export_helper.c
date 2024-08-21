@@ -50,7 +50,7 @@ int check_format(char *arg)
 int print_error(int error_code, char *content)
 {
     if (error_code == 1) {
-        printf("\033[91m%s '%c'\033[0m\n", "export: name cannot start with", *content);
+        printf("%s '%c", "export: not a valid identifier", *content);
     } else if (error_code == 2) {
         printf("\033[91m%s '%c'\033[0m\n", "export: not valid in this context:", *content);
     }

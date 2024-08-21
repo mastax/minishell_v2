@@ -6,7 +6,7 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:45:04 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/14 12:19:51 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/21 12:01:22 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,10 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	return (str);
 }
 
-int	is_spc_opr(char c)
+int	is_spc_opr(char *s, int i)
 {
-	if (c == '|' || c == '>' || c == '<')
+	if (s[i] == '|' || (s[i] == '>' && s[i + 1] != '>')
+		|| (s[i] == '<' && s[i + 1] != '<'))
 		return (1);
 	return (0);
 }

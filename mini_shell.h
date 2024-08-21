@@ -96,9 +96,6 @@ void    free_command(t_arg *cmd);
 // void free_command_list(t_arg *cmd_list);
 
 /*parsing*/
-
-int		is_spc_opr(char c);
-
 // //
 int 	is_valid_var(char c);
 t_token *ft_list_new(char *token, int z);
@@ -121,6 +118,7 @@ int		ft_skipe_spaces(char *s, int index);
 char    *ft_remove_char(char *s, unsigned int index);
 void	ft_lstadd_back(t_token **lst, t_token *new);
 int	check_induble(char *s, int i);
+int	is_spc_opr(char *s, int i);
 
 
 // t_arg *parsing(char *line, char **env);

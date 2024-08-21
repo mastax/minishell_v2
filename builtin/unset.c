@@ -32,15 +32,33 @@ int unset_env_value(t_env *env, const char *key)
 int ft_unsets(t_env *env, char **args, int *exit_status)
 {
     int i;
+    int ret;
 
     i = 0;
-    *exit_status = 0;
+    ret = 0;
     while (args[++i])
     {
         if (!unset_env_value(env, args[i]))
         {
-            (*exit_status)++;
+            ret = 1;
         }
     }
+    *exit_status = ret;
     return 1;
 }
+
+// int ft_unsets(t_env *env, char **args, int *exit_status)
+// {
+//     int i;
+
+//     i = 0;
+//     *exit_status = 0;
+//     while (args[++i])
+//     {
+//         if (!unset_env_value(env, args[i]))
+//         {
+//             (*exit_status)++;
+//         }
+//     }
+//     return 1;
+// }

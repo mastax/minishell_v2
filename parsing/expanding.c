@@ -6,7 +6,7 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:55:47 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/21 12:29:47 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:06:17 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,48 +68,54 @@ int	expanding_helper(char *s, int i)
 	return (0);
 }
 
-int	check_can_expand(char *var_name, t_env *env, t_type prv_type, int j, char *var)
+int	check_can_expand(char *var_name, t_env *env, t_type prv_type, int j, t_token *t)
 {
 	if (prv_type == WORD || prv_type == PIPE)
+	{
+		t->qout_rm = false;
 		return (1);
+	}
 	else if ((get_var_from_env(var_name, j, env) != NULL) && (prv_type == APPEND
 		|| prv_type == RED_IN || prv_type == RED_OUT))
+	{
+		t->qout_rm = false;
 		return (1);
+	}
 	else if ((get_var_from_env(var_name, j, env) == NULL) && (prv_type == APPEND
 		|| prv_type == RED_IN || prv_type == RED_OUT))
 	{
 		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(var, 2);
+		ft_putstr_fd(t->content, 2);
 		ft_putstr_fd(": ambiguous redirect\n", 2);
 		return (0);
 	}
 	return (0);
 }
 
-int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i)
+int	ft_expand_variable(t_token *t, t_env *env, t_type prv_type, int i)
 {
 	int		j;
 	char	*var_name;
 
-	while (var[0][i] != '\0')
+	while (t->content[i] != '\0')
 	{
-		if (var[0][i] == '\'' && check_induble(*var, i) == 0)
-			i = expanding_helper(*var, i);
-		else if (var[0][i] == '$' && (is_valid_var(var[0][i + 1]) == 1))
+		if (t->content[i] == '\'' && check_induble(t->content, i) == 0)
+			i = expanding_helper(t->content, i);
+		else if (t->content[i] == '$' && (is_valid_var(t->content[i + 1]) == 1))
 		{
-			j = ft_name_len(*var, i + 1);
-			var_name = ft_substr(*var, i + 1, j);
+			j = ft_name_len(t->content, i + 1);
+			var_name = ft_substr(t->content, i + 1, j);
 			if (!var_name)
 				return (ft_putstr_fd("minishell : malloc error", 2), -1);
-			if (check_can_expand(var_name, env, prv_type, j, *var) == 0)
+			if (check_can_expand(var_name, env, prv_type, j, t) == 0)
 				return (free(var_name), -1);
-			if (check_can_expand(var_name, env, prv_type, j, *var) == 1)
-				if (ft_var_update(i, var, get_var_from_env(var_name, j, env),
-						&var[0][i + j + 1]) == -1)
+			if (check_can_expand(var_name, env, prv_type, j, t) == 1)
+				if (ft_var_update(i, &(t->content), get_var_from_env(var_name, j, env),
+						&t->content[i + j + 1]) == -1)
 					return (ft_putstr_fd("minishell : malloc error", 2), -1);
 		}
-		else if ((var[0][i] == '$' && (is_valid_var(var[0][i + 1]) != 1))
-			|| (var[0][i] != '$' && var[0][i] != '\0'))
+		else if ((t->content[i] == '$' && (is_valid_var(t->content[i + 1]) != 1))
+			|| (t->content[i] != '$' && t->content[i] != '\0'))
 			i++;
 	}
 	return (0);
@@ -124,7 +130,7 @@ int	expanding(t_token **token, t_env *env, int exit_status, t_type prv_type)
 	{
 		if (prv_type != HER_DOC)
 		{
-			if (ft_expand_variable(&t->content, env, prv_type, 0) == -1)
+			if (ft_expand_variable(t, env, prv_type, 0) == -1)
 				return (-1);
 			if (ft_expand_exit_status(&t->content, exit_status) == -1)
 				return (ft_putstr_fd("minishell : malloc error", 2), -1);

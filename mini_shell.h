@@ -146,7 +146,10 @@ char *read_line(void);
 int expand_variable(char **line, t_env *env);
 int write_to_pipe(int pipefd[2], char *line);
 
-int	ft_expand_variable(char **var, t_env *env, t_type prv_type, int i);//expending
+int ft_expand_variable(t_token *t, t_env *env, t_type prv_type, int i);//expending
+char	*get_var_from_env(char *var, int var_len, t_env *env);
+int	ft_var_update(int i, char **var, char *to_update, char	*secend_part);
+int	ft_expand_herdoc_var(char **var, t_env *env, t_type prv_type, int i);
 
 /*exit_status*/
 

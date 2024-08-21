@@ -6,11 +6,25 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:54:16 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/21 12:02:06 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/21 12:32:55 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../mini_shell.h"
+
+// char *ft_add_char(char *s, unsigned int index, char to_add)
+// {
+//     size_t len = strlen(s);
+//     char *new_str = malloc(len + 2); // +1 for new char, +1 for null terminator
+//     if (!new_str) return NULL;
+
+//     strncpy(new_str, s, index);
+//     new_str[index] = to_add;
+//     strcpy(new_str + index + 1, s + index);
+
+//     free(s);
+//     return new_str;
+// }
 
 char	*ft_add_char(char *s, unsigned int index, char to_add)
 {
@@ -121,30 +135,29 @@ char	*ft_add_space(char *line)
 	return (line);
 }
 
-static char	*print_type(t_type type)
-{
-	if (WORD == type)
-		return ("WORD");
-	else if (PIPE == type)
-		return ("PIPE");
-	else if (RED_IN == type)
-		return ("RED_IN");
-	else if (RED_OUT == type)
-		return ("RED_OUT");
-	else if (HER_DOC == type)
-		return ("HER_DOC");
-	else if (APPEND == type)
-		return ("APPEND");
-	else
-		return (NULL);
-}
+// static char	*print_type(t_type type)
+// {
+// 	if (WORD == type)
+// 		return ("WORD");
+// 	else if (PIPE == type)
+// 		return ("PIPE");
+// 	else if (RED_IN == type)
+// 		return ("RED_IN");
+// 	else if (RED_OUT == type)
+// 		return ("RED_OUT");
+// 	else if (HER_DOC == type)
+// 		return ("HER_DOC");
+// 	else if (APPEND == type)
+// 		return ("APPEND");
+// 	else
+// 		return (NULL);
+// }
 
 int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
 {
 	t_token	*tmp;
 
 	line = ft_add_space(line);
-	printf("afther add space %s\n", line);
 	if (ft_check_qoutes(line) == -1)
 		return (-1);
 	line = ft_compress_spaces(line);
@@ -162,7 +175,7 @@ int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
 	{
 		if (tmp->qout_rm == true)
 			tmp->content = ft_remove_quotes(tmp->content);
-		printf("2!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
+		// printf("2!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
 		tmp = tmp->next;
 	}
 	return (free(line), ft_check_error(*token));

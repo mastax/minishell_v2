@@ -139,6 +139,8 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status) {
                     exit(1);
                 }
                 // Execute the command
+                if (current_cmd->arg == NULL)
+                    exit(0);
                 char *cmd_path = find_command(current_cmd->arg[0], env->env_vars);
                 if (!cmd_path) {
                     ft_putstr_fd(current_cmd->arg[0], 2);

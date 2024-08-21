@@ -6,7 +6,7 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 10:03:08 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/19 18:27:52 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/21 12:22:42 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ int	check_redirect(t_token *token, t_token *next_token)
 
 int	ft_check_error(t_token *token)
 {
+	if (!token)
+		return (0);
 	if (token->type == PIPE)
 		return (printf("syntax error near unexpected token '%s'\n"
 				, token->content), 258);

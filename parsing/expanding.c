@@ -6,7 +6,7 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:55:47 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/19 19:53:41 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/21 12:29:47 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,6 @@ int	expanding(t_token **token, t_env *env, int exit_status, t_type prv_type)
 		{
 			if (ft_handl_spichel_cond(token, t, t->next, t->content, &prv_type) == -1)
 				return (-1);
-			// expanding(token, env, exit_status, WORD);
 			t = *token;
 		}
 		else

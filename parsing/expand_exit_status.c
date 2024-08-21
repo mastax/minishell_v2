@@ -6,7 +6,7 @@
 /*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 10:01:40 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/18 18:30:48 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/21 12:32:07 by sel-hasn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ int	check_induble(char *s, int i)
 				j++;
 			if (s[j] == '"' && (k < i && i < j))
 				return (1);
+			else if (s[j] == '\0')
+				return (0);
 			j++;
 		}
 		else

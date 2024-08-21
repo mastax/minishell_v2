@@ -79,37 +79,37 @@ int	ft_handle_convert(t_token *token, t_arg *args, int type)
 	return (0);
 }
 
-void	ft_prin_arg_red(t_arg **arg)
-{
-	int	i;
-	int	j;
-	t_arg *tmp = *arg;
+// void	ft_prin_arg_red(t_arg **arg)
+// {
+// 	int	i;
+// 	int	j;
+// 	t_arg *tmp = *arg;
 
-	while (tmp)
-	{
-		i = 0;
-		j = 0;
-		printf("New argument set:\n");
-		if (tmp->arg != NULL)
-		{
-			while (tmp->arg[i] != NULL)
-			{
-				printf("arg : %s i=[%d]\n", tmp->arg[i], i);
-				i++;
-			}
-		}
-		if (tmp->red != NULL)
-		{
-			while (tmp->red[j] != NULL)
-			{
-				printf("red : %s j=[%d]\n", tmp->red[j], j);
-				j++;
-			}
-		}
-		tmp = tmp->next;
-		printf("\n");
-	}
-}
+// 	while (tmp)
+// 	{
+// 		i = 0;
+// 		j = 0;
+// 		printf("New argument set:\n");
+// 		if (tmp->arg != NULL)
+// 		{
+// 			while (tmp->arg[i] != NULL)
+// 			{
+// 				printf("arg : %s i=[%d]\n", tmp->arg[i], i);
+// 				i++;
+// 			}
+// 		}
+// 		if (tmp->red != NULL)
+// 		{
+// 			while (tmp->red[j] != NULL)
+// 			{
+// 				printf("red : %s j=[%d]\n", tmp->red[j], j);
+// 				j++;
+// 			}
+// 		}
+// 		tmp = tmp->next;
+// 		printf("\n");
+// 	}
+// }
 
 int	ft_convert_token_to_arg(t_token *token, t_arg *args, int stat)
 {

@@ -116,11 +116,22 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status) {//works fine in t
             } else if (pids[cmd_index] == 0) { // Child process
                 // Set up pipes, heredoc, and other redirections
                 // Execute the command
+
+                // if (current_cmd->arg != NULL) {
+                    char *cmd_path = find_command(current_cmd->arg[0], env->env_vars);
+                    if (!cmd_path) {
+                        ft_putstr_fd(current_cmd->arg[0], 2);
+                        ft_putstr_fd(": command not found\n", 2);
+                        exit(127);
+                    }
+                    execve(cmd_path, current_cmd->arg, env->env_vars);
+                    perror("execve");
+
                 exit(0);
             }
             child_count++;
         }
-
+        g_sig.pid = pids[cmd_index];// for not showing more than 1 prompt
         // Parent process
         if (current_cmd->heredoc_fds) {
             for (int i = 0; i < count_heredocs(current_cmd->red); i++) {

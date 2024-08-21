@@ -69,7 +69,7 @@ int execute_commands_loop(execute_loop_params *params) {
 }
 //=-=-=--=
 
-int execute_command(t_arg *cmd, t_env *env, int *exit_status) {//works fine in the case of exit status and 
+int execute_command(t_arg *cmd, t_env *env, int *exit_status) {
     t_io io;
     int command_count, pipe_count;
     int pipe_fds[MAX_PIPES][2];
@@ -115,30 +115,36 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status) {//works fine in t
                 return 1;
             } else if (pids[cmd_index] == 0) { // Child process
                 // Set up pipes, heredoc, and other redirections
-                // Execute the command
-
-                // if (current_cmd->arg != NULL) {
-                    char *cmd_path = find_command(current_cmd->arg[0], env->env_vars);
-                    if (!cmd_path) {
-                        ft_putstr_fd(current_cmd->arg[0], 2);
-                        ft_putstr_fd(": command not found\n", 2);
-                        exit(127);
+                if (cmd_index > 0) {
+                    dup2(pipe_fds[cmd_index - 1][0], STDIN_FILENO);
+                }
+                if (cmd_index < pipe_count) {
+                    dup2(pipe_fds[cmd_index][1], STDOUT_FILENO);
+                }
+                for (int i = 0; i < pipe_count; i++) {
+                    close(pipe_fds[i][0]);
+                    close(pipe_fds[i][1]);
+                }
+                if (current_cmd->heredoc_fds) {
+                    for (int i = 0; i < count_heredocs(current_cmd->red); i++) {
+                        dup2(current_cmd->heredoc_fds[i], STDIN_FILENO);
+                        close(current_cmd->heredoc_fds[i]);
                     }
-                    execve(cmd_path, current_cmd->arg, env->env_vars);
-                    perror("execve");
-
-                exit(0);
+                }
+                // Execute the command
+                char *cmd_path = find_command(current_cmd->arg[0], env->env_vars);
+                if (!cmd_path) {
+                    ft_putstr_fd(current_cmd->arg[0], 2);
+                    ft_putstr_fd(": command not found\n", 2);
+                    exit(127);
+                }
+                execve(cmd_path, current_cmd->arg, env->env_vars);
+                perror("execve");
+                exit(1);
             }
             child_count++;
         }
-        g_sig.pid = pids[cmd_index];// for not showing more than 1 prompt
-        // Parent process
-        if (current_cmd->heredoc_fds) {
-            for (int i = 0; i < count_heredocs(current_cmd->red); i++) {
-                close(current_cmd->heredoc_fds[i]);
-            }
-        }
-
+        g_sig.pid = pids[cmd_index];
         current_cmd = current_cmd->next;
         cmd_index++;
     }
@@ -158,6 +164,97 @@ int execute_command(t_arg *cmd, t_env *env, int *exit_status) {//works fine in t
     restore_io(&io);
     return result;
 }
+
+//=-=-=-=-
+// int execute_command(t_arg *cmd, t_env *env, int *exit_status) {//works fine in the case of exit status and 
+//     t_io io;
+//     int command_count, pipe_count;
+//     int pipe_fds[MAX_PIPES][2];
+//     pid_t pids[MAX_COMMANDS];
+//     int child_count = 0;
+
+//     command_count = count_commands(cmd);
+//     pipe_count = command_count - 1;
+
+//     save_original_io(&io);
+
+//     if (setup_pipes(pipe_count, pipe_fds) != 0) {
+//         restore_io(&io);
+//         return 1;
+//     }
+
+//     // First, process all heredocs
+//     t_arg *current_cmd = cmd;
+//     while (current_cmd) {
+//         int heredoc_count = count_heredocs(current_cmd->red);
+//         if (heredoc_count > 0) {
+//             current_cmd->heredoc_fds = handle_heredocs(current_cmd->red, heredoc_count, env);
+//             if (!current_cmd->heredoc_fds) {
+//                 restore_io(&io);
+//                 return 1;
+//             }
+//         }
+//         current_cmd = current_cmd->next;
+//     }
+
+//     // Now execute commands
+//     current_cmd = cmd;
+//     int cmd_index = 0;
+//     while (current_cmd) {
+//         if (current_cmd->arg != NULL && is_builtin(current_cmd->arg[0])) {
+//             // Execute the builtin in the parent process
+//             execute_builtin(current_cmd, env, exit_status);
+//         } else {
+//             pids[cmd_index] = fork();
+//             if (pids[cmd_index] == -1) {
+//                 perror("fork");
+//                 restore_io(&io);
+//                 return 1;
+//             } else if (pids[cmd_index] == 0) { // Child process
+//                 // Set up pipes, heredoc, and other redirections
+//                 // Execute the command
+
+//                 // if (current_cmd->arg != NULL) {
+//                     char *cmd_path = find_command(current_cmd->arg[0], env->env_vars);
+//                     if (!cmd_path) {
+//                         ft_putstr_fd(current_cmd->arg[0], 2);
+//                         ft_putstr_fd(": command not found\n", 2);
+//                         exit(127);
+//                     }
+//                     execve(cmd_path, current_cmd->arg, env->env_vars);
+//                     perror("execve");
+
+//                 exit(0);
+//             }
+//             child_count++;
+//         }
+//         g_sig.pid = pids[cmd_index];// for not showing more than 1 prompt
+//         // Parent process
+//         if (current_cmd->heredoc_fds) {
+//             for (int i = 0; i < count_heredocs(current_cmd->red); i++) {
+//                 close(current_cmd->heredoc_fds[i]);
+//             }
+//         }
+
+//         current_cmd = current_cmd->next;
+//         cmd_index++;
+//     }
+
+//     // Close all pipe fds in parent
+//     for (int i = 0; i < pipe_count; i++) {
+//         close(pipe_fds[i][0]);
+//         close(pipe_fds[i][1]);
+//     }
+
+//     // Wait for all child processes
+//     int result = 0;
+//     if (child_count > 0) {
+//         result = wait_for_children(pids, child_count, exit_status);
+//     }
+
+//     restore_io(&io);
+//     return result;
+// }
 
 //=-=-=-
 // int execute_command(t_arg *cmd, t_env *env, int *exit_status) {//last work with signals

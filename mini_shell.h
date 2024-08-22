@@ -28,13 +28,15 @@ char *get_env_value(t_env *env, const char *key);
 int set_env_value(t_env *env, const char *key, const char *value);
 int unset_env_value(t_env *env, const char *key);
 
-int execute_builtin(t_arg *cmd, t_env *env, int *exit_status);
+// int execute_builtin(t_arg *cmd, t_env *env, int *exit_status);///////////
+int execute_builtin_p(t_arg *cmd, t_env *env, int *exit_status);
+int execute_builtin_ch(t_arg *cmd, t_env *env, int *exit_status);
 int execute_external_command(char **argv, char **envp);
 int execute_command(t_arg *cmd, t_env *env, int *exit_status);
 int main_shell_loop(t_env *env);
 int ft_env(t_env *env);
 
-int ft_change_dir(char **av, t_env *env);
+int ft_change_dir(char **av, t_env *env, int *exit_status);
 int change_to_home(t_env *env);
 int change_to_previous(t_env *env);
                     /*PIP - HELPER FUNCTIONS*/
@@ -43,7 +45,10 @@ char **split_pipeline(char *line);
 void redirect_io(int input_fd, int output_fd);
 int run_pipeline_command(char *command, t_env *env, int input_fd, int output_fd);
 int execute_builtin_command(char **argv, t_env *env, int input_fd, int output_fd);
+
 int execute_external_command_fork(char **argv, t_env *env, int input_fd, int output_fd);
+// void setup_child_process(t_arg *cmd, int cmd_index, int pipe_count, int pipe_fds[MAX_PIPES][2]);
+
 void handle_command(char *command, t_pipeline_state *state);
 int wait_and_cleanup(int *pids, int num_commands, int prev_input, int temp_stdout);
 int handle_pipeline(char **commands, t_env *env);
@@ -64,7 +69,7 @@ int     ft_is_arg_nbr(char *ar);
                     /*THE BUILTIN*/
 
 int		ft_echo(char **av);
-int		ft_exit(char **av, int status);
+int ft_exit(char **av, int *exit_status);
 int     pwd(int fd);
 int ft_exports(t_env *env, char **args, int *exit_status);
 int ft_unsets(t_env *env, char **args, int *exit_status);
@@ -75,6 +80,7 @@ int     is_builtin(const char *cmd);
 char    **split_line(char *line);
 char    *find_command(char *cmd, char **envp);
 int     execute_external_command(char **argv, char **envp);
+// void execute_external_command(t_arg *cmd, t_env *env);
 void    restore_io(t_io *io);
 void    save_original_io(t_io *io);
 int setup_pipes(int pipe_count, int pipe_fds[][2]);
@@ -83,8 +89,12 @@ int setup_pipes(int pipe_count, int pipe_fds[][2]);
 
 // int fork_and_execute(t_arg *cmd, t_env *env, int *exit_status, int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, pid_t *pid);
 int fork_and_execute(fork_execute_params *params);
+// int execute_builtin_command(t_arg *current_cmd, t_env *env, int *exit_status, t_io *io);
 // void setup_child_process(int cmd_index, int pipe_count, int pipe_fds[][2], int *heredoc_fds, int heredoc_count);
+// void setup_child_process(int cmd_index, int pipe_count, int pipe_fds[MAX_PIPES][2], t_arg *current_cmd);
 void setup_child_process(child_setup_params *params);
+
+// void setup_child_process(t_arg *cmd, int cmd_index, int pipe_count, int pipe_fds[MAX_PIPES][2]);
 void cleanup_parent_process(int *heredoc_fds, int heredoc_count);
 int count_commands(t_arg *cmd);
 int wait_for_children(pid_t *pids, int command_count, int *exit_status);

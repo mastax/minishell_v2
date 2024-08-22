@@ -118,7 +118,7 @@ int execute_builtin_command(char **argv, t_env *env, int input_fd, int output_fd
 
     setup_builtin_io(input_fd, output_fd, &temp_stdin, &temp_stdout);
     temp_cmd.arg = argv;
-    status = execute_builtin(&temp_cmd, env, &status);
+    status = execute_builtin_ch(&temp_cmd, env, &status);
     restore_builtin_io(temp_stdin, temp_stdout);
 
     return status;

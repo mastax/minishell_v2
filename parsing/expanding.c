@@ -68,28 +68,30 @@ int	expanding_helper(char *s, int i)
 	return (0);
 }
 
-int	check_can_expand(char *var_name, t_env *env, t_type prv_type, int j, t_token *t)
+int    check_can_expand(char *var_name, t_env *env, t_type prv_type, int j, t_token *t)
 {
-	if (prv_type == WORD || prv_type == PIPE)
-	{
-		t->qout_rm = false;
-		return (1);
-	}
-	else if ((get_var_from_env(var_name, j, env) != NULL) && (prv_type == APPEND
-		|| prv_type == RED_IN || prv_type == RED_OUT))
-	{
-		t->qout_rm = false;
-		return (1);
-	}
-	else if ((get_var_from_env(var_name, j, env) == NULL) && (prv_type == APPEND
-		|| prv_type == RED_IN || prv_type == RED_OUT))
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(t->content, 2);
-		ft_putstr_fd(": ambiguous redirect\n", 2);
-		return (0);
-	}
-	return (0);
+    if (prv_type == WORD || prv_type == PIPE)
+    {
+        if (t->content[0] != '"' && t->content[0] != '\'')
+            t->qout_rm = false;
+        return (1);
+    }
+    else if ((get_var_from_env(var_name, j, env) != NULL) && (prv_type == APPEND
+        || prv_type == RED_IN || prv_type == RED_OUT))
+    {
+        if (t->content[0] != '"' && t->content[0] != '\'')
+            t->qout_rm = false;
+        return (1);
+    }
+    else if ((get_var_from_env(var_name, j, env) == NULL) && (prv_type == APPEND
+        || prv_type == RED_IN || prv_type == RED_OUT))
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(t->content, 2);
+        ft_putstr_fd(": ambiguous redirect\n", 2);
+        return (0);
+    }
+    return (0);
 }
 
 int	ft_expand_variable(t_token *t, t_env *env, t_type prv_type, int i)

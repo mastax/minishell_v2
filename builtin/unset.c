@@ -11,7 +11,7 @@ int unset_env_value(t_env *env, const char *key)
     key_len = ft_strlen(key);
     while (i < env->count)
     {
-        if (ft_strncmp(env->env_vars[i], key, key_len) == 0 && env->env_vars[i][key_len] == '=')
+        if (ft_strcmp(env->env_vars[i], key) == 0)
         {
             free(env->env_vars[i]);
             j = i;
@@ -38,10 +38,14 @@ int ft_unsets(t_env *env, char **args, int *exit_status)
     ret = 0;
     while (args[++i])
     {
-        if (!unset_env_value(env, args[i]))
-        {
+        if (check_format(args[i]) == 1)
             ret = 1;
-        }
+    }
+    i = 0;
+    while (args[++i])
+    {
+        if (unset_env_value(env, args[i]) == 1)
+            ret = 0;
     }
     *exit_status = ret;
     return 1;

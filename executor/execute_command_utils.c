@@ -95,7 +95,7 @@ int fork_and_execute(fork_execute_params *params) {
         if (params->cmd->arg == NULL)
             exit (0);
         if (is_builtin(params->cmd->arg[0]))
-            exit(execute_builtin(params->cmd, params->env, params->exit_status));
+            exit(execute_builtin_ch(params->cmd, params->env, params->exit_status));
         else
             exit(execute_external_command(params->cmd->arg, params->env->env_vars));
     }

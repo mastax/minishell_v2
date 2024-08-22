@@ -58,7 +58,9 @@ int check_format(char *arg)
 int print_error(int error_code, char *content)
 {
     if (error_code == 1) {
-        printf("export: `%s': not a valid identifier\n", content);
+        ft_putstr_fd("export: `", 2);
+        ft_putstr_fd(content, 2);
+        ft_putstr_fd("': not a valid identifier\n", 2);
     }
     return (1);
 }

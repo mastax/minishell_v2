@@ -1,5 +1,21 @@
 #include "../../mini_shell.h"
 
+char *get_env_value(t_env *env, const char *key) //helper cd
+{
+    int key_len;
+    int i;
+
+    key_len = strlen(key);
+    i = 0;
+    while (i < env->count)
+    {
+        if (strncmp(env->env_vars[i], key, key_len) == 0 && env->env_vars[i][key_len] == '=')
+            return env->env_vars[i] + key_len + 1;
+        i++;
+    }
+    return NULL;
+}
+
 int change_to_home(t_env *env)
 {
     char *home;

@@ -1,70 +1,5 @@
 #include "../../mini_shell.h"
 
-int check_format(char *arg)
-{
-    int cur;
-    int has_equal;
-
-    if (!ft_isalpha(arg[0]) && arg[0] != '_')
-        return (print_error(1, arg), 1);
-    cur = 0;
-    while (arg[cur] != '\0')
-    {
-        if (arg[cur] == '=')
-            break ;
-        if (arg[cur] == '-')
-            return (print_error(1, arg), 1);
-        cur++;
-    }
-    cur = 0;
-    has_equal = 0;
-    while (arg[cur])
-    {
-        if (arg[cur] == '=')
-            has_equal = 1;
-        else if (arg[cur] == '+' && arg[cur+1] == '=')
-            has_equal = 1;
-        
-        cur++;
-    }
-    return (0);  // Return 0 (success) regardless of whether there's an equals sign
-}
-
-// int check_format(char *arg)
-// {
-//     int cur;
-//     int has_equal;
-
-//     if (!ft_isalpha(arg[0]))
-//          return (print_error(1, &arg[0]));
-//     cur = 0;
-//     has_equal = 0;
-//     while (arg[cur])
-//     {
-//         if (arg[cur] == '=')
-//             has_equal = 1;
-//         else if (arg[cur] == '+' && arg[cur+1] == '=')
-//             has_equal = 1;
-//         else if (!ft_isalnum(arg[cur]) && arg[cur] != '_')
-//             if (!has_equal)
-//                 return (print_error(2, &arg[cur]));
-//         cur++;
-//     }
-//     if (!has_equal)
-//         return (1);
-//     return (0);
-// }
-
-int print_error(int error_code, char *content)
-{
-    if (error_code == 1) {
-        ft_putstr_fd("export: `", 2);
-        ft_putstr_fd(content, 2);
-        ft_putstr_fd("': not a valid identifier\n", 2);
-    }
-    return (1);
-}
-
 static char **copy_env_vars(t_env *env)
 {
     char **sorted_env;
@@ -133,19 +68,6 @@ static void print_env_vars(char **sorted_env, int count)
         i++;
     }
 }
-
-// static void print_env_vars(char **sorted_env, int count)
-// {
-//     int i;
-
-//     i = 0;
-//     while (i < count)
-//     {
-//         ft_putstr_fd("declare -x ", 1);
-//         ft_putendl_fd(sorted_env[i], 1);
-//         i++;
-//     }
-// }
 
 static void free_sorted_env(char **sorted_env, int count)
 {

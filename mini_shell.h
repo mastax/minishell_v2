@@ -73,6 +73,8 @@ int ft_exit(char **av, int *exit_status);
 int     pwd(int fd);
 int ft_exports(t_env *env, char **args, int *exit_status);
 int ft_unsets(t_env *env, char **args, int *exit_status);
+
+int append_new_var(t_env *env, char *s);
                     /*THE_EXECUTOR*/
 
 int     main_shell_loop(t_env *env);

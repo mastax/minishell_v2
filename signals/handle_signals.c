@@ -19,27 +19,6 @@ void sig_int(int code)
     // g_sig.exit_status = 130;
 }
 
-// void sig_int(int code)
-// {
-//     (void)code;
-//     if (g_sig.pid == 0)
-//     {
-//         ft_putstr_fd("\n", STDERR_FILENO);
-//         rl_on_new_line();
-//         rl_replace_line("", 0);
-//         rl_redisplay();
-//         g_sig.exit_status = 1;
-//     }
-//     else
-//     {
-//         ft_putstr_fd("\n", STDERR_FILENO);
-//         g_sig.exit_status = 130;
-//     }
-//     g_sig.sigint = 1;
-//     // Reset the flag immediately
-//     g_sig.sigint = 0;
-// }
-
 void sig_quit(int code)
 {
     char *nbr;

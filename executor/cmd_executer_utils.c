@@ -16,22 +16,6 @@ void free_env(t_env *env)
     free(env);
 }
 
-char *get_env_value(t_env *env, const char *key) //helper cd
-{
-    int key_len;
-    int i;
-
-    key_len = strlen(key);
-    i = 0;
-    while (i < env->count)
-    {
-        if (strncmp(env->env_vars[i], key, key_len) == 0 && env->env_vars[i][key_len] == '=')
-            return env->env_vars[i] + key_len + 1;
-        i++;
-    }
-    return NULL;
-}
-
 void free_argv(char **av)
 {
     int i;

@@ -74,4 +74,3 @@ int set_env_value(t_env *env, const char *key, const char *value)
         return 1;
     return (add_new_env(env, new_var));
 }
-

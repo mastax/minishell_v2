@@ -50,19 +50,3 @@ int ft_unsets(t_env *env, char **args, int *exit_status)
     *exit_status = ret;
     return 1;
 }
-
-// int ft_unsets(t_env *env, char **args, int *exit_status)
-// {
-//     int i;
-
-//     i = 0;
-//     *exit_status = 0;
-//     while (args[++i])
-//     {
-//         if (!unset_env_value(env, args[i]))
-//         {
-//             (*exit_status)++;
-//         }
-//     }
-//     return 1;
-// }

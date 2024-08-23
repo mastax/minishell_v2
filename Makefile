@@ -23,6 +23,7 @@ SRC = builtin/cd.c \
       libft/libft_utils5.c \
       builtin/builtin_helpers/cd_helper.c \
       builtin/builtin_helpers/export_helper.c \
+      builtin/builtin_helpers/export_helpers1.c \
       builtin/builtin_helpers/set_env_value.c \
       pip/pipline.c \
       pip/pipline_run.c \

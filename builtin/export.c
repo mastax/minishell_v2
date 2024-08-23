@@ -37,13 +37,27 @@ static int find_and_update_var(t_env *env, char *name, char *value, int is_appen
 {
     for (int i = 0; i < env->count; i++)
     {
-        if (ft_strcmp(env->env_vars[i], name) == 0)
+        if (ft_strncmp(env->env_vars[i], name, ft_strlen(name)) == 0 && 
+            (env->env_vars[i][ft_strlen(name)] == '=' || env->env_vars[i][ft_strlen(name)] == '\0'))
         {
             return (handle_existing_var(env, name, value, is_append, s, i));
         }
     }
     return (0);
 }
+
+
+// static int find_and_update_var(t_env *env, char *name, char *value, int is_append, char *s)
+// {
+//     for (int i = 0; i < env->count; i++)
+//     {
+//         if (ft_strcmp(env->env_vars[i], name) == 0)
+//         {
+//             return (handle_existing_var(env, name, value, is_append, s, i));
+//         }
+//     }
+//     return (0);
+// }
 
 static int parse_export_string(char *s, char **name, char **value, int *is_append)
 {
@@ -74,7 +88,6 @@ int ft_export(t_env *env, char *s)
     if (check_format(s) == 1)
         return (2);
     parse_export_string(s, &name, &value, &is_append);
-    
     if (!find_and_update_var(env, name, value, is_append, s))
     {
         if (!append_new_var(env, s))

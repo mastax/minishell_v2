@@ -139,6 +139,12 @@ int execute_commands(t_arg *cmd, t_env *env, int *exit_status, t_io *io, int pip
                 // Execute the command
                 if (current_cmd->arg == NULL)
                     exit(0);
+                
+                if (current_cmd->arg == NULL || current_cmd->arg[0] == NULL || current_cmd->arg[0][0] == '\0')
+                {
+                    ft_putstr_fd(": command not found\n", 2);
+                    exit(127);
+                }
 
                 char *cmd_path;
                 if (current_cmd->arg[0][0] == '/' || current_cmd->arg[0][0] == '.') {

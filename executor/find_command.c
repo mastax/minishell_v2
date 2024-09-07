@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   find_command.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/29 16:55:54 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/08/29 16:55:55 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../mini_shell.h"
 
 static char *get_path_from_env(char **envp)
@@ -62,3 +74,30 @@ char *find_command(char *cmd, char **envp)
     free(path_copy);
     return (full_path);
 }
+
+// char *find_command(char *cmd, char **envp, int *exit_status)
+// {
+//     char *path;
+//     char *path_copy;
+//     char *full_path;
+
+//     path = get_path_from_env(envp);
+//     if (!path)
+//         return (NULL);
+//     path_copy = ft_strdup(path);
+//     if (!path_copy)
+//         return (NULL);
+//     full_path = search_command_in_path(path_copy, cmd);
+//     if (full_path == NULL)
+//     {
+// 		*exit_status = 127;
+// 		if (access(cmd, X_OK))
+//         {
+//             ft_putstr_fd(cmd, 2);
+//             ft_putstr_fd(": command not found\n", 2);
+//         }
+// 		return (NULL);
+// 	} 
+//     free(path_copy);
+//     return (full_path);
+// }

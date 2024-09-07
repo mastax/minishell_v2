@@ -1,33 +1,34 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   export_helpers1.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/29 16:54:52 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/08/30 16:03:37 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../../mini_shell.h"
 
 int check_format(char *arg)
 {
     int cur;
-    int has_equal;
 
     if (!ft_isalpha(arg[0]) && arg[0] != '_')
         return (print_error(1, arg), 1);
+    
     cur = 0;
     while (arg[cur] != '\0')
     {
         if (arg[cur] == '=')
-            break ;
+            break;
         if (arg[cur] == '-')
             return (print_error(1, arg), 1);
         cur++;
     }
-    cur = 0;
-    has_equal = 0;
-    while (arg[cur])
-    {
-        if (arg[cur] == '=')
-            has_equal = 1;
-        else if (arg[cur] == '+' && arg[cur+1] == '=')
-            has_equal = 1;
-        
-        cur++;
-    }
-    return (0);  // Return 0 (success) regardless of whether there's an equals sign
+    return 0;  // valide format without '='
 }
 
 int print_error(int error_code, char *content)
@@ -65,4 +66,22 @@ int append_new_var(t_env *env, char *s)
     env->env_vars = new_env;
     env->count++;
     return (1);
+}
+int parse_export_string(char *s, char **name, char **value, int *is_append)
+{
+	*name = ft_strdup(s);
+	*value = ft_strchr(*name, '=');
+	if (*value)
+	{
+		**value = '\0';
+		(*value)++;
+		if (*(*value - 2) == '+')
+		{
+			*is_append = 1;
+			*(*value - 2) = '\0';
+		}
+	}
+	else
+		*value = NULL;
+	return (0);
 }

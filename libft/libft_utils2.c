@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   libft_utils2.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/29 16:57:10 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/08/29 16:57:29 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../mini_shell.h"
 
 static int	overflow_ft(int sign)
@@ -36,48 +48,6 @@ int	ft_atoi(const char *str)
 	}
 	return (result * sign);
 }
-
-// char	*ft_strdup(const char *src)
-// {
-// 	int		i;
-// 	char	*dst;
-
-// 	i = 0;
-// 	dst = (char *)malloc(sizeof(char) * ft_strlen(src) + 1);
-// 	if (!dst)
-// 		return (NULL);
-// 	while (src[i])
-// 	{
-// 		dst[i] = src[i];
-// 		i++;
-// 	}
-// 	dst[i] = '\0';
-// 	return (dst);
-// }
-
-// char	*ft_substr(char *s, unsigned int start, size_t len)
-// {
-// 	size_t	x;
-// 	size_t	y;
-// 	char	*substring;
-
-// 	if (!s)
-// 		return (NULL);
-// 	x = 0;
-// 	while (x < len && (start < ft_strlen(s)) && s[start + x])
-// 		x++;
-// 	y = 0;
-// 	substring = malloc((x + 1) * sizeof(char));
-// 	if (!substring)
-// 		return (NULL);
-// 	while (y < x && start < ft_strlen(s))
-// 	{
-// 		substring[y] = s[start + y];
-// 		y++;
-// 	}
-// 	substring[x] = '\0';
-// 	return (substring);
-// }
 
 int ft_strcmp(const char *s1, const char *s2)
 {

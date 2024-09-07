@@ -38,45 +38,44 @@ char	**ft_handl_args(char *content, char **arv, int type)
 	if (type == 1)
 	{
 		arv[0] = ft_strdup(content);
-		arv[1] = NULL;
-	}
-	else if (type == 2)
-	{
-		while (arv[i] != NULL)
-			i++;
+		if (arv[0] == NULL)
+            return NULL;
+        arv[1] = NULL;
+    }
+    else if (type == 2)
+    {
+        while (arv[i] != NULL)
+            i++;
 		arv[i] = ft_strdup(content);
-		arv[i + 1] = NULL;
-	}
-	return (arv);
+		if (arv[i] == NULL)
+            return NULL;
+        arv[i + 1] = NULL;
+    }
+    return arv;
 }
 
-int	ft_handle_convert(t_token *token, t_arg *args, int type)
+int	ft_handle_convert_args(t_token *token, t_arg *args)
 {
-	int		i;
-
-	if (args->arg == NULL && type == 1)
-	{
-		i = count_args_red(token, 1);
-		if ((args->arg = malloc(sizeof(char *) * (i + 1))) == NULL)
-			return (ft_putstr_fd("Error: can't malloc for new_arg\n", 2), -1);
-		args->arg = ft_handl_args(token->content, args->arg, 1);
-	}
-	else if (args->arg != NULL && type == 1)
-		args->arg = ft_handl_args(token->content, args->arg, 2);
-	if (args->red == NULL && type == 2)
-	{
-		i = count_args_red(token, 2);
-		if ((args->red = malloc(sizeof(char *) * (i + 1))) == NULL)
-			return (ft_putstr_fd("Error: can't malloc for new_arg\n", 2), -1);
-		args->red = ft_handl_args(token->content, args->red, 1);
-		args->red = ft_handl_args(token->next->content, args->red, 2);
-	}
-	else if (args->red != NULL && type == 2)
-	{
-		args->red = ft_handl_args(token->content, args->red, 2);
-		args->red = ft_handl_args(token->next->content, args->red, 2);
-	}
-	return (0);
+	int	i;
+	if (args->arg == NULL)
+    {
+        i = count_args_red(token, 1);
+		args->arg = malloc(sizeof(char *) * (i + 1));
+        if (args->arg == NULL)
+            return (ft_putstr_fd("Error: can't malloc for new_arg\n", 2), -1);
+		if (token->is_empty == true)
+			args->arg = ft_handl_args(NULL, args->arg, 1);
+		else
+        	args->arg = ft_handl_args(token->content, args->arg, 1);
+    }
+    else
+    {
+		// if (token->is_empty == true)
+		// 	args->arg = ft_handl_args(NULL, args->arg, 2);
+		// else
+        	args->arg = ft_handl_args(token->content, args->arg, 2);
+    }
+    return (0);
 }
 
 // void	ft_prin_arg_red(t_arg **arg)
@@ -110,6 +109,36 @@ int	ft_handle_convert(t_token *token, t_arg *args, int type)
 // 		printf("\n");
 // 	}
 // }
+
+int ft_handle_convert_red(t_token *token, t_arg *args)
+{
+    int i;
+
+    if (args->red == NULL)
+    {
+        i = count_args_red(token, 2);
+		args->red = malloc(sizeof(char *) * (i + 1));
+        if (args->red == NULL)
+            return (ft_putstr_fd("Error: can't malloc for new_arg\n", 2), -1);
+        args->red = ft_handl_args(token->content, args->red, 1);
+        args->red = ft_handl_args(token->next->content, args->red, 2);
+    }
+    else
+    {
+        args->red = ft_handl_args(token->content, args->red, 2);
+        args->red = ft_handl_args(token->next->content, args->red, 2);
+    }
+    return (0);
+}
+
+int ft_handle_convert(t_token *token, t_arg *args, int type)
+{
+    if (type == 1)
+        return ft_handle_convert_args(token, args);
+    else if (type == 2)
+        return ft_handle_convert_red(token, args);
+    return (0);
+}
 
 int	ft_convert_token_to_arg(t_token *token, t_arg *args, int stat)
 {

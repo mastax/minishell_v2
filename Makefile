@@ -9,11 +9,13 @@ SRC = builtin/cd.c \
       builtin/unset.c \
       builtin/builtin_executer.c \
       executor/cmd_executer_utils.c \
-      executor/exe_external_cmd.c \
       executor/execute_command_utils.c \
       executor/execute_command.c \
       executor/find_command.c \
       executor/main_loop.c \
+      executor/create_env.c \
+      executor/env_helper.c  \
+      executor/get_path.c  \
       executor/main.c \
       libft/libft_utils.c \
       libft/libft_utils1.c \
@@ -21,12 +23,9 @@ SRC = builtin/cd.c \
       libft/libft_utils3.c \
       libft/libft_utils4.c \
       libft/libft_utils5.c \
-      builtin/builtin_helpers/cd_helper.c \
       builtin/builtin_helpers/export_helper.c \
       builtin/builtin_helpers/export_helpers1.c \
       builtin/builtin_helpers/set_env_value.c \
-      pip/pipline.c \
-      pip/pipline_run.c \
       redirections/redirections.c \
       parsing/check_error.c \
       parsing/expanding.c \
@@ -42,11 +41,12 @@ SRC = builtin/cd.c \
       parsing/arg_utils.c \
       heredoc/heredoc.c \
       heredoc/heredoc_utils.c \
+      heredoc/heredoc_utils1.c \
       signals/handle_signals.c \
 	  mini_shell.c
 OBJ = $(SRC:.c=.o)
 RM = rm -f
-FLAGC = -Wall -Wextra -Werror -g -fsanitize=address
+FLAGC = -Wall -Wextra -Werror #-g -fsanitize=address
 LDFLAGS = -lreadline
 HEADER = mini_shell.h
 READLINEDIR = $(shell brew --prefix readline)
@@ -70,5 +70,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
-

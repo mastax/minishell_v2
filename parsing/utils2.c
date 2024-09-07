@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   utils2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:43:25 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/13 09:43:39 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/31 18:39:42 by elel-bah         ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "../mini_shell.h"
 
@@ -29,12 +29,14 @@ int	is_valid_var(char c)
 		return (0);
 }
 
-char	*ft_strdup(char *s1)
+char	*ft_strdup(const char *s1)
 {
 	char	*s;
 	int		i;
 
 	i = 0;
+	if (s1 == NULL)
+		return (NULL);
 	s = (char *)malloc(sizeof(char) * (ft_strlen(s1) + 1));
 	if (s == NULL)
 		return (NULL);
@@ -71,12 +73,8 @@ char	*ft_strjoin(char *s1, char *s2)
 	int		j;
 	char	*s;
 
-	if (!s1 && !s2)
+	if (!s1 || !s2)
 		return (NULL);
-	else if (!s1)
-		return (ft_strdup(s2));
-	else if (!s2)
-		return (ft_strdup(s1));
 	s = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
 	if (!s)
 		return (NULL);

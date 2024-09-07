@@ -1,6 +1,24 @@
 #ifndef MINI_SHELL_H
 # define MINI_SHELL_H
 
+#define MAX_FD 1024  // Adjust this based on your system's limits
+typedef struct s_fd_tracker {
+    int fd_table[MAX_FD];
+    int qout;
+} t_fd_tracker;
+
+# include "./include/struct.h"
+# include "./include/libft.h"
+# include "./include/exe_struct_hlp.h"
+
+
+# include <sys/wait.h>
+#include <stdio.h>
+#include <signal.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+# include <sys/stat.h>
+
 
 #define MAX_PIPES 100
 #define MAX_COMMANDS 101
@@ -10,18 +28,40 @@
 #define STDOUT_FILENO 1
 #define BUFFER_SIZE 1024
 
-# include <sys/wait.h>
-#include <stdio.h>
-# include <readline/readline.h>
-# include <readline/history.h>
+typedef struct s_setup_context {
+    t_arg *cmd;
+    t_env *env;
+    t_io *io;
+    int (*pipe_fds)[2];
+    int *command_count;
+    int *pipe_count;
+} t_setup_context;
 
-# include "./include/struct.h"
-# include "./include/libft.h"
-# include "./include/exe_struct_hlp.h"
+typedef struct s_command_context
+{
+    t_arg *cmd;
+    t_env *env;
+    int *exit_status;
+    t_fd_tracker *fd_tracker;
+} t_command_context;
+
+typedef struct s_execution_data {
+    t_io io;
+    int command_count;
+    int pipe_count;
+    int pipe_fds[MAX_PIPES][2];
+} t_execution_data;
+
+
+
 
 t_sig g_sig;
 
+// get_path
+char	*ft_get_path(char *cmd, int *exit_status);
+
 // Function prototypes
+t_env *create_env_v_i(int count);
 t_env *create_env(char **envp);
 void free_env(t_env *env);
 char *get_env_value(t_env *env, const char *key);
@@ -32,8 +72,11 @@ int unset_env_value(t_env *env, const char *key);
 int execute_builtin_p(t_arg *cmd, t_env *env, int *exit_status);
 int execute_builtin_ch(t_arg *cmd, t_env *env, int *exit_status);
 int execute_external_command(char **argv, char **envp);
-int execute_command(t_arg *cmd, t_env *env, int *exit_status);
-int main_shell_loop(t_env *env);
+
+int execute_command(t_command_context *context);
+// int execute_command(t_arg *cmd, t_env *env, int *exit_status);
+
+// int main_shell_loop(t_env *env);
 int ft_env(t_env *env);
 
 int ft_change_dir(char **av, t_env *env, int *exit_status);
@@ -62,6 +105,7 @@ void    free_argv(char **av);
 int     check_format(char *arg);
 int     print_error(int error_code, char *content);
 void    print_sorted_env(t_env *env);
+int     parse_export_string(char *s, char **name, char **value, int *is_append);
 
                     /*exit BUiLTIN*/
 
@@ -77,15 +121,19 @@ int ft_unsets(t_env *env, char **args, int *exit_status);
 int append_new_var(t_env *env, char *s);
                     /*THE_EXECUTOR*/
 
-int     main_shell_loop(t_env *env);
+int main_shell_loop(t_env *env, t_fd_tracker *fd_tracker);
+// int     main_shell_loop(t_env *env);
 int     is_builtin(const char *cmd);
 char    **split_line(char *line);
-char    *find_command(char *cmd, char **envp);
+char *find_command(char *cmd, char **envp);
+// char *find_command(char *cmd, char **envp, int *exit_status);
 int     execute_external_command(char **argv, char **envp);
 // void execute_external_command(t_arg *cmd, t_env *env);
 void    restore_io(t_io *io);
 void    save_original_io(t_io *io);
-int setup_pipes(int pipe_count, int pipe_fds[][2]);
+// int setup_pipes(int pipe_count, int pipe_fds[][2]);
+
+int setup_pipes(int pipe_count, int pipe_fds[][2], t_fd_tracker *fd_tracker);/////
 
 // void setup_child_process(child_setup_params *params);
 
@@ -109,6 +157,7 @@ void    free_command(t_arg *cmd);
 
 /*parsing*/
 // //
+int	ft_var_update(int i, char **var, char *to_update, char	*secend_part);
 int 	is_valid_var(char c);
 t_token *ft_list_new(char *token, int z);
 char	*ft_compress_spaces(char *s);
@@ -117,7 +166,7 @@ int	ft_skipe_qoute(char	*s, int i);
 int	ft_name_len(char *var, int i);
 int ft_have_sp_tb(char *s);
 int	ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token,
-char *content, t_type *prv_type);
+ t_type *prv_type);
 int	get_token(t_token **token, char	*s, int z);
 void free_tokens(t_token *tokens);
 int		ft_check_error(t_token *token);
@@ -125,6 +174,7 @@ void	ft_putstr_fd(char *str, int fd);
 char	*ft_remove_quotes(char *s);
 // int		expanden(t_token **token, char **env);
 int	expanding(t_token **token, t_env *env, int exit_status, t_type prv_type);
+int	expanding_helper(char *s, int i);
 // int	get_token(t_token **token, char	*s);
 int		ft_skipe_spaces(char *s, int index);
 char    *ft_remove_char(char *s, unsigned int index);
@@ -153,7 +203,10 @@ int apply_redirections(char **red);
 /*HERDOC*/
 
 int count_heredocs(char **red);
-int *handle_heredocs(char **red, int count, t_env *env);
+
+// int *handle_heredocs(char **red, int count, t_env *env);
+int *handle_heredocs(char **red, int count, t_env *env, t_fd_tracker *tracker);
+
 char *read_line(void);
 int expand_variable(char **line, t_env *env);
 int write_to_pipe(int pipefd[2], char *line);
@@ -166,12 +219,29 @@ int	ft_expand_herdoc_var(char **var, t_env *env, t_type prv_type, int i);
 /*exit_status*/
 
 
-int	ft_expand_exit_status(char **var, int exit_status);
+// int	ft_expand_exit_status(char **var, int exit_status);
+int	ft_expand_exit_status(char **var, int exit_status, int i);
+
 
 
 /* SIGNALS*/
 void sig_int(int code);
 void sig_init(void);
 void sig_quit(int code);
+int get_sigint(int n);
+int get_sigquit(int n);
+int get_pid(int n);
+int get_exit_status(int n);
+int get_in_heredoc(int n);
+
+void track_fd(t_fd_tracker *tracker, int fd);
+void untrack_fd(t_fd_tracker *tracker, int fd);
+void close_all_fds(t_fd_tracker *tracker);
+
+/*heredoc helpers*/
+
+void child_process(int pipefd[2], const char *delimiter, t_env *env, t_fd_tracker *fd_tracker);
+void parent_process(int pipefd[2], pid_t pid, t_fd_tracker *fd_tracker);
+int check_if_qoutes(char *s);
 
 #endif

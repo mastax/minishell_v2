@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   libft_utils1.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/29 16:56:52 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/08/29 16:57:04 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../mini_shell.h"
 
 void	*ft_calloc(size_t count, size_t size)
@@ -42,14 +54,6 @@ size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 	dst[dst_len + i] = '\0';
 	return (dst_len + src_len);
 }
-
-// void	ft_putstr_fd(char *s, int fd)
-// {
-// 	if (!s || !fd)
-// 		return ;
-// 	else
-// 		write(fd, s, ft_strlen(s));
-// }
 
 int	is_number(int c)
 {

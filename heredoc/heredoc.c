@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heredoc.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/28 20:59:26 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/09/07 14:37:51 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../mini_shell.h"
 
 static char *get_heredoc_delimiter(char **red, int index)
@@ -9,7 +21,7 @@ static char *get_heredoc_delimiter(char **red, int index)
         if (ft_strcmp(red[i], "<<") == 0)
         {
             if (count == index && red[i + 1])
-                return red[i + 1];
+                return ft_strdup(red[i + 1]);
             count++;
         }
         i++;
@@ -17,30 +29,33 @@ static char *get_heredoc_delimiter(char **red, int index)
     return NULL;
 }
 
-static void child_process(int pipefd[2], const char *delimiter, t_env *env)
+int process_delimiter(char **red, int i, char **delimiter, char **processed_delimiter, t_fd_tracker *tracker)
 {
-    char *line;
+    int j;
 
-    close(pipefd[0]); // Close read end of the pipe
-    while ((line = read_line()) != NULL)
+    j = 0;
+    *delimiter = get_heredoc_delimiter(red, i);
+    if (!*delimiter)
+        return 0;
+    while (delimiter[0][j])
     {
-        if (strcmp(line, delimiter) == 0)
-            break;
-        if (expand_variable(&line, env) == -1)
-            exit(1);
-        write_to_pipe(pipefd, line);
-        free(line);
+        if (delimiter[0][j] == '$' && (delimiter[0][j + 1] == '"'
+			|| delimiter[0][j + 1] == '\''))
+		{
+            delimiter[0] = ft_remove_char(delimiter[0], j);
+            if (!delimiter[0])
+                return (0);
+        }
+        j++;
     }
-    close(pipefd[1]);
+    tracker->qout = check_if_qoutes(*delimiter);
+    if (tracker->qout == 1)
+        *processed_delimiter = ft_remove_quotes(*delimiter);
+    else
+        *processed_delimiter = *delimiter;
+    return *processed_delimiter != NULL;
 }
-
-static void parent_process(int pipefd[2], pid_t pid)
-{
-    close(pipefd[1]); // Close write end of the pipe
-    waitpid(pid, NULL, 0); // Wait for the child process to finish
-}
-
-int create_heredoc(const char *delimiter, t_env *env)
+int create_heredoc(const char *delimiter, t_env *env, t_fd_tracker *tracker)
 {
     int pipefd[2];
     pid_t pid;
@@ -50,181 +65,66 @@ int create_heredoc(const char *delimiter, t_env *env)
         perror("pipe");
         return -1;
     }
+    track_fd(tracker, pipefd[0]);
+    track_fd(tracker, pipefd[1]);
+    get_in_heredoc(1);/////
     pid = fork();
-    if (pid == -1)
-    {
+    if (pid == -1) {
         perror("fork");
+        close(pipefd[0]);
+        close(pipefd[1]);
+        untrack_fd(tracker, pipefd[0]);
+        untrack_fd(tracker, pipefd[1]);
+        get_in_heredoc(0);  // Reset the flag
         return -1;
     }
-    if (pid == 0) // Child process
-    {
-        child_process(pipefd, delimiter, env);
+    if (pid == 0) { // Child process
+        signal(SIGINT, SIG_DFL);
+        child_process(pipefd, delimiter, env, tracker);
         exit(0);
-    } 
-    else // Parent process
-    {
-        parent_process(pipefd, pid);
+    }
+    else
+    { // Parent process
+        parent_process(pipefd, pid, tracker);
+        get_in_heredoc(0);  // Reset the flag
+        untrack_fd(tracker, pipefd[1]); // Untrack the write end that we closed
         return pipefd[0];
     }
-}
+} 
 
-
-//=-=-=-=-=-=-=-=-=--=
-
-// static int create_heredoc(const char *delimiter, t_env *env)
-// {
-//     char *line;
-//     char *expanded_line;
-//     size_t len;
-//     ssize_t nread;
-//     pid_t pid;
-
-//     line = NULL;
-//     expanded_line = NULL;
-//     len = 0;
-//     int pipefd[2];
-//     if (pipe(pipefd) == -1)
-//     {
-//         perror("pipe");
-//         return -1;
-//     }
-//     pid = fork();
-//     if (pid == -1)
-//     {
-//         perror("fork");
-//         return -1;
-//     }
-//     if (pid == 0)
-//     { // Child process
-//         close(pipefd[0]); // Close read end of the pipe
-//         while ((nread = getline(&line, &len, stdin)) != -1)
-//         {
-//             // Remove newline character if present
-//             if (nread > 0 && line[nread - 1] == '\n')
-//                 line[nread - 1] = '\0';
-            
-//             // Check if the line matches the delimiter
-//             if (strcmp(line, delimiter) == 0)
-//                 break;
-            
-//             // Expand variables in the line
-//             expanded_line = ft_strdup(line);
-//             if (expanded_line == NULL)
-//             {
-//                 perror("ft_strdup");
-//                 free(line);
-//                 exit(1);
-//             }
-            
-//             if (ft_expand_variable(&expanded_line, env, WORD, 0) == -1) {
-//                 free(expanded_line);
-//                 free(line);
-//                 exit(1);
-//             }
-            
-//             // Write the expanded line to the pipe, including the newline
-//             write(pipefd[1], expanded_line, ft_strlen(expanded_line));
-//             write(pipefd[1], "\n", 1);
-            
-//             free(expanded_line);
-//             expanded_line = NULL;
-//         }
-//         free(line);
-//         close(pipefd[1]);
-//         exit(0);
-//     } 
-//     else
-//     { // Parent process
-//         close(pipefd[1]); // Close write end of the pipe
-//         waitpid(pid, NULL, 0); // Wait for the child process to finish
-//         return pipefd[0];
-//     }
-// }
-
-// static int create_heredoc(const char *delimiter)
-// {
-//     char *line;
-//     size_t len;
-//     ssize_t nread;
-
-//     int pipefd[2];
-//     if (pipe(pipefd) == -1) {
-//         perror("pipe");
-//         return -1;
-//     }
-//     pid_t pid = fork();
-//     if (pid == -1) {
-//         perror("fork");
-//         return -1;
-//     }
-//     if (pid == 0)
-//     { // Child process
-//         close(pipefd[0]); // Close read end of the pipe
-//         line = NULL;
-//         len = 0;
-//         while ((nread = getline(&line, &len, stdin)) != -1)
-//         {
-//             // Check if the line matches the delimiter
-//             if (nread > 0 && line[nread - 1] == '\n')
-//                 line[nread - 1] = '\0';
-//             if (strcmp(line, delimiter) == 0)
-//                 break;
-//             // Write the line to the pipe, including the newline
-//             line[nread - 1] = '\n'; // Ensure newline character is added back
-//             write(pipefd[1], line, nread);
-//         }
-//         free(line);
-//         close(pipefd[1]);
-//         exit(0);
-//     } 
-//     else
-//     { // Parent process
-//         close(pipefd[1]); // Close write end of the pipe
-//         waitpid(pid, NULL, 0); // Wait for the child process to finish
-//         return pipefd[0];
-//     }
-// }
-
-int *handle_heredocs(char **red, int count, t_env *env)
+void cleanup_and_return(int *heredoc_fds, int count, t_fd_tracker *tracker)
 {
-    int *heredoc_fds = malloc(sizeof(int) * count);
+    int j;
+
+    j = 0;
+    while (j < count)
+    {
+        close(heredoc_fds[j]);
+        untrack_fd(tracker, heredoc_fds[j]);
+        j++;
+    }
+    free(heredoc_fds);
+}
+int *handle_heredocs(char **red, int count, t_env *env, t_fd_tracker *tracker)
+{
+    int     *heredoc_fds;
+    char    *delimiter;
+    char    *processed_delimiter;
+    int     i;
+
+    heredoc_fds = malloc(sizeof(int) * count);
     if (!heredoc_fds)
         return NULL;
-
-    for (int i = 0; i < count; i++)
+    i = 0;
+    while (i < count)
     {
-        char *delimiter = get_heredoc_delimiter(red, i);
-        heredoc_fds[i] = create_heredoc(delimiter, env);
+        if (!process_delimiter(red, i, &delimiter, &processed_delimiter, tracker))
+            return(cleanup_and_return(heredoc_fds, i, tracker), NULL);
+        heredoc_fds[i] = create_heredoc(processed_delimiter, env, tracker);
+        free(processed_delimiter);
         if (heredoc_fds[i] == -1)
-        {
-            // Clean up previously created here-docs
-            for (int j = 0; j < i; j++)
-                close(heredoc_fds[j]);
-            free(heredoc_fds);
-            return NULL;
-        }
+            return (cleanup_and_return(heredoc_fds, i, tracker), NULL);
+        i++;
     }
-    return (heredoc_fds);
+    return heredoc_fds;
 }
-
-// int *handle_heredocs(char **red, int count)
-// {
-//     int *heredoc_fds = malloc(sizeof(int) * count);
-//     if (!heredoc_fds)
-//         return NULL;
-
-//     for (int i = 0; i < count; i++)
-//     {
-//         char *delimiter = get_heredoc_delimiter(red, i);
-//         heredoc_fds[i] = create_heredoc(delimiter);
-//         if (heredoc_fds[i] == -1)
-//         {
-//             // Clean up previously created here-docs
-//             for (int j = 0; j < i; j++)
-//                 close(heredoc_fds[j]);
-//             free(heredoc_fds);
-//             return NULL;
-//         }
-//     }
-//     return (heredoc_fds);
-// }

@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   libft_utils.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/29 16:56:39 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/08/31 17:47:52 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../mini_shell.h"
 
 void	ft_putendl_fd(char *s, int fd)
@@ -23,19 +35,6 @@ void	*ft_memset(void *b, int c, size_t len)
 	return (b);
 }
 
-// int	ft_strncmp(char *s1, const char *s2, size_t n)
-// {
-// 	unsigned int	i;
-
-// 	i = 0;
-// 	while (s1[i] == s2[i] && s1[i] != '\0' && i < n)
-// 		i++;
-// 	if (i == n)
-// 		return (0);
-// 	else
-// 		return ((unsigned char)s1[i] - (unsigned char)s2[i]);
-// }
-
 char	*ft_strchr(const char *s, int c)
 {
 	while (*s != '\0')
@@ -52,7 +51,10 @@ char	*ft_strchr(const char *s, int c)
 size_t ft_strlen(const char *s)
 {
     int i;
+
     i = 0;
+	if (!s)
+		return (0);
     while(s[i])
         i++;
     return(i);

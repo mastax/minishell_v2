@@ -1,16 +1,43 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   expand_exit_status.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 10:01:40 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/21 12:32:07 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:03:01 by elel-bah         ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "../mini_shell.h"
+
+int	ft_var_update(int i, char **var, char *to_update, char	*secend_part)
+{
+	char	*first_part;
+	char	*update_var;
+
+	first_part = NULL;
+	if (i == 0 && !to_update)
+		first_part = ft_strdup("");
+	else if (i == 0 && to_update)
+		first_part = ft_strdup(to_update);
+	else if (i != 0 && !to_update)
+		first_part = ft_strndup(*var, i);
+	else if (i != 0 && to_update)
+		first_part = ft_strjoin(ft_strndup(*var, i), to_update);
+	if (!first_part)
+		return (-1);
+	update_var = ft_strjoin(first_part, secend_part);
+	if (!update_var)
+	{
+		free(first_part);
+		return (-1);
+	}
+	free(*var);
+	*var = update_var;
+	return (0);
+}
 
 int	ft_strncmp(char *s1, const char *s2, size_t n)
 {
@@ -82,13 +109,29 @@ int	ft_exit_update(char **var, int i, char *exit_str, char *secend_part)
 	return (0);
 }
 
-int	ft_expand_exit_status(char **var, int exit_status)
+int ft_handle_dolar(char **var, int *i)
 {
-	int		i;
+	char qout;
+
+	qout = var[0][*i + 1];
+	if ((*i != 0) && (var[0][*i - 1] == qout))
+	{
+		*i += 1;
+		return (0);
+	}
+	var[0] = ft_remove_char(var[0], *i);
+	if (!var[0])
+	{
+		ft_putstr_fd("minishell : mlloc error\n", 2);
+		return (-1);
+	}
+	return (0);
+}
+
+int	ft_expand_exit_status(char **var, int exit_status, int i)
+{
 	char	*exit_str;
 
-	i = 0;
-	exit_str = NULL;
 	while (var[0][i] != '\0')
 	{
 		if (var[0][i] == '\'')
@@ -99,6 +142,12 @@ int	ft_expand_exit_status(char **var, int exit_status)
 			if (!exit_str)
 				return (-1);
 			if (ft_exit_update(var, i, exit_str, &var[0][i + 2]) == -1)
+				return (-1);
+		}
+		else if (var[0][i] == '$' && (var[0][i + 1] == '"'
+			|| var[0][i + 1] == '\''))
+		{
+			if (ft_handle_dolar(var, &i) == -1)
 				return (-1);
 		}
 		else

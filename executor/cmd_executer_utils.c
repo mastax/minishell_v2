@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cmd_executer_utils.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/28 21:17:23 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/08/29 11:01:47 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../mini_shell.h"
 
 void free_env(t_env *env)
@@ -44,19 +56,4 @@ int is_builtin(const char *cmd)
         }
     }
     return 0;
-}
-
-int count_heredocs(char **red)
-{
-    int count = 0;
-    int i = 0;
-    if (!red || !(*red))
-        return (0);
-    while (red[i] != NULL)
-    {
-        if (ft_strcmp(red[i], "<<") == 0)
-            count++;
-        i++;
-    }
-    return count;
 }

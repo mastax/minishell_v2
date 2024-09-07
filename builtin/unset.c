@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   unset.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/29 10:51:31 by elel-bah          #+#    #+#             */
+/*   Updated: 2024/09/01 12:22:04 by elel-bah         ###   ########.fr       */
+/*                                                                            */
+/******************************************************************************/
+
 #include "../mini_shell.h"
 
 int unset_env_value(t_env *env, const char *key)
@@ -7,11 +19,11 @@ int unset_env_value(t_env *env, const char *key)
     size_t key_len;
 
     i = 0;
-    j = 0;
     key_len = ft_strlen(key);
     while (i < env->count)
     {
-        if (ft_strncmp(env->env_vars[i], key, key_len) == 0 && env->env_vars[i][key_len] == '=')
+        if (ft_strncmp(env->env_vars[i], key, key_len) == 0 && 
+            (env->env_vars[i][key_len] == '=' || env->env_vars[i][key_len] == '\0'))
         {
             free(env->env_vars[i]);
             j = i;
@@ -29,46 +41,22 @@ int unset_env_value(t_env *env, const char *key)
     return 0;
 }
 
-// int ft_unsets(t_env *env, char **args, int *exit_status)
-// {
-//     int i;
-//     int ret;
-
-//     i = 0;
-//     ret = 0;
-//     while (args[++i])
-//     {
-//         if (check_format(args[i]) == 1)
-//             ret = 1;
-//     }
-//     i = 0;
-//     while (args[++i])
-//     {
-//         if (unset_env_value(env, args[i]) == 1)
-//             ret = 0;
-//     }
-//     *exit_status = ret;
-//     return 1;
-// }
-
 int ft_unsets(t_env *env, char **args, int *exit_status)
 {
     int i;
-    int ret;
+    int track_err;
 
-    i = 0;
-    ret = 0;
-    while (args[++i])
+    i = 1;
+    track_err = 0;
+    while (args[i])
     {
         if (check_format(args[i]) == 1)
-            ret = 1;
+            track_err = 1;
+        else
+            unset_env_value(env, args[i]);
+        i++;
     }
-    i = 0;
-    while (args[++i])
-    {
-        if (unset_env_value(env, args[i]) == 1)
-            ret = 0;
-    }
-    *exit_status = ret;
-    return 1;
+    *exit_status = track_err;
+    return (1);
 }
+

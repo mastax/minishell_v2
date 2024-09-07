@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:54:16 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/21 12:32:55 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/09/04 14:20:36 by elel-bah         ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "../mini_shell.h"
 
@@ -77,6 +77,8 @@ char *ft_handl_appand_herdoc(char *line, int i)
     }
     else if (i == 0 && (line[i + 2] != ' ' && line[i + 2] != '\t'))
         return (ft_add_char(line, i + 2, ' '));
+	else if (line[i + 2] == '\0')
+        line = ft_add_char(line, i, ' ');
     return (line);
 }
 
@@ -103,6 +105,8 @@ char	*ft_handl_spc_opr(char *line, int i)
 	}
 	else if (i == 0 && (line[i + 1] != ' ' && line[i + 1] != '\t'))
         return (ft_add_char(line, i + 1, ' '));
+	else if (line[i + 1] == '\0')
+        line = ft_add_char(line, i, ' ');
 	return (line);
 }
 
@@ -115,7 +119,7 @@ char	*ft_add_space(char *line)
 	{
 		if (line[i] == '"' || line[i] == '\'')
 			i = ft_skipe_qoute(line, i) - 1;
-		else if ((i + 2 < ft_strlen(line)) && ((line[i] == '>' && line[i + 1] == '>')
+		else if ((ft_strlen(line) > 2) && ((line[i] == '>' && line[i + 1] == '>')
 			|| (line[i] == '<' && line[i + 1] == '<')))
 		{
 			line = ft_handl_appand_herdoc(line, i);
@@ -123,7 +127,7 @@ char	*ft_add_space(char *line)
 				return (NULL);
 			i += 2;
 		}
-		else if ((i + 1 < ft_strlen(line)) && is_spc_opr(line, i) == 1)
+		else if ((ft_strlen(line) > 1) && (is_spc_opr(line, i) == 1))
 		{
 			line = ft_handl_spc_opr(line, i);
 			if (!line)
@@ -167,14 +171,15 @@ int	parsing(char *line, t_token	**token, t_env *env, int exit_status)
 		return (0);
 	if (expanding(token, env, exit_status, WORD) == -1)
 		return (-1);
-	if ((*token)->content[ft_skipe_spaces((*token)->content, 0)] == '\0')
-		*token = (*token)->next;
-		// return (free(line), 0);
 	tmp = *token;
 	while (tmp)
 	{
+		if (tmp->content[ft_skipe_spaces(tmp->content, 0)] == '\0')
+			tmp->is_empty = true;
 		if (tmp->qout_rm == true)
 			tmp->content = ft_remove_quotes(tmp->content);
+		if (tmp->type == HER_DOC && tmp->next != NULL)//add for the heredoc problem
+            tmp = tmp->next;
 		// printf("2!!  Token : {%s}------->>>>>>>> Type : [%s]\n", tmp->content, print_type(tmp->type));
 		tmp = tmp->next;
 	}

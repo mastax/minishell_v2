@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   expanding_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-hasn <sel-hasn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elel-bah <elel-bah@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 10:00:52 by sel-hasn          #+#    #+#             */
-/*   Updated: 2024/08/19 20:00:03 by sel-hasn         ###   ########.fr       */
+/*   Updated: 2024/08/31 17:57:42 by elel-bah         ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "../mini_shell.h"
 
@@ -17,6 +17,8 @@ int	ft_name_len(char *var, int i)
 	int	len;
 
 	len = 0;
+	if (var[i] > '0' && var[i] <= '9')
+		return (1);
 	while (var[i + len] != '\0' && (is_valid_var(var[i + len]) == 1))
 		len++;
 	return (len);
@@ -67,8 +69,8 @@ void	ambiguous_error(char *arg)
 	ft_putstr_fd(": ambiguous redirect\n", 2);
 }
 
-int	ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token,
-char *content, t_type *prv_type)
+int	ft_handl_spichel_cond(t_token **token, t_token *now, t_token *next_token
+, t_type *prv_type)
 {
 	t_token	*new_tokens;
 	t_token	*tmp;
@@ -77,7 +79,7 @@ char *content, t_type *prv_type)
 	if (*prv_type == APPEND || *prv_type == RED_IN || *prv_type == RED_OUT)
 		return (ambiguous_error(now->content), -1);
 	*prv_type = WORD;
-	if (get_token(&new_tokens, content, 2) == -1)
+	if (get_token(&new_tokens, now->content, 2) == -1)
 		return (-1);
 	tmp = *token;
 	if (tmp == now)
